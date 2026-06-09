@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import PatientPopover from "./PatientPopover";
+import type { NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
 
@@ -42,6 +43,7 @@ const Dashboard = () => {
   });
   const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<NotificationData | null>(null);
 
   const patientQuery = useQuery({
     queryKey: ["patient", selectedPatientId],
@@ -66,8 +68,9 @@ const Dashboard = () => {
     };
   }, [isPatientPopoverOpen]);
 
-  const handleOpenPatientPopover = (patientId: string) => {
-    setSelectedPatientId(patientId);
+  const handleOpenPatientPopover = (notification: NotificationData) => {
+    setSelectedPatientId(notification.patientId);
+    setSelectedNotification(notification);
     setIsPatientPopoverOpen(true);
   };
 
@@ -76,6 +79,7 @@ const Dashboard = () => {
 
     if (!open) {
       setSelectedPatientId(null);
+      setSelectedNotification(null);
     }
   };
 
@@ -148,7 +152,7 @@ const Dashboard = () => {
                   bg={rowColor}
                   onContextMenu={(event) => {
                     event.preventDefault();
-                    handleOpenPatientPopover(notification.patientId);
+                    handleOpenPatientPopover(notification);
                   }}
                   cursor="context-menu"
                 >
@@ -183,6 +187,7 @@ const Dashboard = () => {
         patient={patientQuery.data ?? null}
         isLoading={patientQuery.isLoading}
         errorMessage={patientQuery.isError ? (patientQuery.error as Error).message : undefined}
+        selectedNotification={selectedNotification}
       />
     </Box>
   );
