@@ -41,8 +41,7 @@ describe("NotificationsServiceImpl", () => {
 
     expect(getMock).toHaveBeenCalledWith("/notifications", {
       params: {
-        _sort: "timestamp",
-        _order: "desc",
+        _sort: "-timestamp",
       },
       signal: undefined,
     });

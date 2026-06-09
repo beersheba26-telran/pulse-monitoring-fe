@@ -17,8 +17,7 @@ class NotificationsServiceImpl implements NotificationsService {
 	async getNotifications(signal?: AbortSignal): Promise<NotificationData[]> {
 		const response = await notificationsApi.get<NotificationDto[]>("/notifications", {
 			params: {
-				_sort: "timestamp",
-				_order: "desc",
+				_sort: "-timestamp",
 			},
 			signal,
 		});

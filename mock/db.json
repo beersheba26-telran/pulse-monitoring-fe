@@ -288,8 +288,8 @@
       "message": "ABnormal JUMP previous value 84 -> current value 107",
       "timestamp": "2026-06-09T10:57:08.787Z",
       "type": "JUMP_RATE",
-      "severity": "MINOR",
-      "status": "CREATED"
+      "severity": "MAJOR",
+      "status": "ACKNOWLEDGED"
     },
     {
       "id": "2",
