@@ -8,12 +8,15 @@
     "mock": "json-server --watch mock/db.json --port 3001",
     "mock:start": "npm run mock",
     "build": "tsc -b && vite build",
+    "test": "vitest run",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.35.0",
     "@emotion/react": "^11.14.0",
+    "@tanstack/react-query": "^5.101.0",
+    "axios": "^1.17.0",
     "next-themes": "^0.4.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
@@ -32,6 +35,7 @@
     "json-server": "^1.0.0-beta.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "vitest": "^4.1.8"
   }
 }
