@@ -1,0 +1,1187 @@
+{
+  "patients": [
+    {
+      "id": "1",
+      "name": "Liam Smith",
+      "age": 23,
+      "lastHeartRateValues": [
+        59,
+        61,
+        103,
+        120,
+        73
+      ],
+      "weight": 90,
+      "height": 164
+    },
+    {
+      "id": "2",
+      "name": "Noah Taylor",
+      "age": 82,
+      "lastHeartRateValues": [
+        112,
+        113,
+        62,
+        75,
+        122
+      ],
+      "weight": 103,
+      "height": 185
+    },
+    {
+      "id": "3",
+      "name": "Oliver Jackson",
+      "age": 52,
+      "lastHeartRateValues": [
+        108,
+        59,
+        120,
+        113,
+        107
+      ],
+      "weight": 53,
+      "height": 193
+    },
+    {
+      "id": "4",
+      "name": "Elijah Martin",
+      "age": 73,
+      "lastHeartRateValues": [
+        64,
+        62,
+        94,
+        113,
+        59
+      ],
+      "weight": 101,
+      "height": 179
+    },
+    {
+      "id": "5",
+      "name": "James Martinez",
+      "age": 76,
+      "lastHeartRateValues": [
+        91,
+        58,
+        118,
+        59,
+        113
+      ],
+      "weight": 81,
+      "height": 186
+    },
+    {
+      "id": "6",
+      "name": "William Lewis",
+      "age": 62,
+      "lastHeartRateValues": [
+        87,
+        85,
+        65,
+        91,
+        87
+      ],
+      "weight": 90,
+      "height": 183
+    },
+    {
+      "id": "7",
+      "name": "Benjamin Hall",
+      "age": 45,
+      "lastHeartRateValues": [
+        59,
+        61,
+        67,
+        103,
+        76
+      ],
+      "weight": 63,
+      "height": 186
+    },
+    {
+      "id": "8",
+      "name": "Lucas Johnson",
+      "age": 34,
+      "lastHeartRateValues": [
+        90,
+        95,
+        113,
+        120,
+        58
+      ],
+      "weight": 64,
+      "height": 161
+    },
+    {
+      "id": "9",
+      "name": "Henry Anderson",
+      "age": 51,
+      "lastHeartRateValues": [
+        67,
+        70,
+        88,
+        108,
+        96
+      ],
+      "weight": 94,
+      "height": 170
+    },
+    {
+      "id": "10",
+      "name": "Theodore White",
+      "age": 68,
+      "lastHeartRateValues": [
+        81,
+        120,
+        61,
+        74,
+        113
+      ],
+      "weight": 79,
+      "height": 171
+    },
+    {
+      "id": "11",
+      "name": "Olivia Thompson",
+      "age": 81,
+      "lastHeartRateValues": [
+        104,
+        62,
+        106,
+        110,
+        65
+      ],
+      "weight": 81,
+      "height": 171
+    },
+    {
+      "id": "12",
+      "name": "Emma Robinson",
+      "age": 77,
+      "lastHeartRateValues": [
+        82,
+        88,
+        120,
+        80,
+        95
+      ],
+      "weight": 59,
+      "height": 185
+    },
+    {
+      "id": "13",
+      "name": "Ava Lee",
+      "age": 62,
+      "lastHeartRateValues": [
+        76,
+        81,
+        61,
+        105,
+        87
+      ],
+      "weight": 110,
+      "height": 165
+    },
+    {
+      "id": "14",
+      "name": "Sophia Allen",
+      "age": 67,
+      "lastHeartRateValues": [
+        112,
+        95,
+        81,
+        81,
+        66
+      ],
+      "weight": 71,
+      "height": 175
+    },
+    {
+      "id": "15",
+      "name": "Isabella Brown",
+      "age": 67,
+      "lastHeartRateValues": [
+        113,
+        86,
+        79,
+        77,
+        68
+      ],
+      "weight": 61,
+      "height": 192
+    },
+    {
+      "id": "16",
+      "name": "Mia Thomas",
+      "age": 74,
+      "lastHeartRateValues": [
+        79,
+        77,
+        82,
+        63,
+        87
+      ],
+      "weight": 68,
+      "height": 160
+    },
+    {
+      "id": "17",
+      "name": "Charlotte Harris",
+      "age": 53,
+      "lastHeartRateValues": [
+        90,
+        116,
+        95,
+        106,
+        67
+      ],
+      "weight": 110,
+      "height": 165
+    },
+    {
+      "id": "18",
+      "name": "Amelia Garcia",
+      "age": 39,
+      "lastHeartRateValues": [
+        81,
+        71,
+        114,
+        100,
+        86
+      ],
+      "weight": 100,
+      "height": 169
+    },
+    {
+      "id": "19",
+      "name": "Harper Clark",
+      "age": 44,
+      "lastHeartRateValues": [
+        75,
+        108,
+        88,
+        112,
+        70
+      ],
+      "weight": 76,
+      "height": 153
+    },
+    {
+      "id": "20",
+      "name": "Evelyn Walker",
+      "age": 52,
+      "lastHeartRateValues": [
+        62,
+        104,
+        119,
+        98,
+        64
+      ],
+      "weight": 85,
+      "height": 166
+    }
+  ],
+  "notifications": [
+    {
+      "id": "1",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 84 -> current value 107",
+      "timestamp": "2026-06-09T10:57:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "2",
+      "patientId": "12",
+      "message": "ABnormal JUMP previous value 67 -> current value 85",
+      "timestamp": "2026-06-09T10:56:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "3",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 60 -> current value 82",
+      "timestamp": "2026-06-09T10:55:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "4",
+      "patientId": "12",
+      "message": "ABnormal JUMP previous value 64 -> current value 76",
+      "timestamp": "2026-06-09T10:54:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "5",
+      "patientId": "19",
+      "message": "Abnormal value with deviation from center value is 17 percent",
+      "timestamp": "2026-06-09T10:53:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "6",
+      "patientId": "11",
+      "message": "Abnormal value with deviation from center value is 48 percent",
+      "timestamp": "2026-06-09T10:52:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "7",
+      "patientId": "6",
+      "message": "ABnormal JUMP previous value 86 -> current value 73",
+      "timestamp": "2026-06-09T10:51:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "8",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 76 -> current value 111",
+      "timestamp": "2026-06-09T10:50:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "9",
+      "patientId": "9",
+      "message": "Abnormal value with deviation from center value is 53 percent",
+      "timestamp": "2026-06-09T10:49:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "10",
+      "patientId": "9",
+      "message": "Abnormal value with deviation from center value is 51 percent",
+      "timestamp": "2026-06-09T10:48:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "11",
+      "patientId": "10",
+      "message": "ABnormal JUMP previous value 82 -> current value 68",
+      "timestamp": "2026-06-09T10:47:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "12",
+      "patientId": "15",
+      "message": "ABnormal JUMP previous value 60 -> current value 83",
+      "timestamp": "2026-06-09T10:46:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "13",
+      "patientId": "19",
+      "message": "ABnormal JUMP previous value 65 -> current value 53",
+      "timestamp": "2026-06-09T10:45:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "14",
+      "patientId": "7",
+      "message": "ABnormal JUMP previous value 101 -> current value 87",
+      "timestamp": "2026-06-09T10:44:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "15",
+      "patientId": "8",
+      "message": "Abnormal value with deviation from center value is 31 percent",
+      "timestamp": "2026-06-09T10:43:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "16",
+      "patientId": "16",
+      "message": "ABnormal JUMP previous value 96 -> current value 77",
+      "timestamp": "2026-06-09T10:42:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "17",
+      "patientId": "12",
+      "message": "ABnormal JUMP previous value 91 -> current value 105",
+      "timestamp": "2026-06-09T10:41:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "18",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 74 -> current value 40",
+      "timestamp": "2026-06-09T10:40:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "19",
+      "patientId": "6",
+      "message": "ABnormal JUMP previous value 73 -> current value 94",
+      "timestamp": "2026-06-09T10:39:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "20",
+      "patientId": "20",
+      "message": "ABnormal JUMP previous value 108 -> current value 81",
+      "timestamp": "2026-06-09T10:38:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "21",
+      "patientId": "8",
+      "message": "ABnormal JUMP previous value 110 -> current value 92",
+      "timestamp": "2026-06-09T10:37:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "22",
+      "patientId": "3",
+      "message": "ABnormal JUMP previous value 108 -> current value 142",
+      "timestamp": "2026-06-09T10:36:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "23",
+      "patientId": "5",
+      "message": "ABnormal JUMP previous value 66 -> current value 43",
+      "timestamp": "2026-06-09T10:35:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "24",
+      "patientId": "8",
+      "message": "Abnormal value with deviation from center value is 53 percent",
+      "timestamp": "2026-06-09T10:34:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "25",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 71 -> current value 93",
+      "timestamp": "2026-06-09T10:33:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "26",
+      "patientId": "19",
+      "message": "ABnormal JUMP previous value 63 -> current value 46",
+      "timestamp": "2026-06-09T10:32:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "27",
+      "patientId": "17",
+      "message": "ABnormal JUMP previous value 105 -> current value 120",
+      "timestamp": "2026-06-09T10:31:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "28",
+      "patientId": "16",
+      "message": "ABnormal JUMP previous value 63 -> current value 35",
+      "timestamp": "2026-06-09T10:30:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "29",
+      "patientId": "19",
+      "message": "ABnormal JUMP previous value 93 -> current value 80",
+      "timestamp": "2026-06-09T10:29:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "30",
+      "patientId": "3",
+      "message": "ABnormal JUMP previous value 86 -> current value 67",
+      "timestamp": "2026-06-09T10:28:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "31",
+      "patientId": "5",
+      "message": "ABnormal JUMP previous value 110 -> current value 98",
+      "timestamp": "2026-06-09T10:27:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "32",
+      "patientId": "5",
+      "message": "ABnormal JUMP previous value 92 -> current value 110",
+      "timestamp": "2026-06-09T10:26:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "33",
+      "patientId": "1",
+      "message": "ABnormal JUMP previous value 110 -> current value 130",
+      "timestamp": "2026-06-09T10:25:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "34",
+      "patientId": "9",
+      "message": "ABnormal JUMP previous value 78 -> current value 56",
+      "timestamp": "2026-06-09T10:24:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "35",
+      "patientId": "20",
+      "message": "ABnormal JUMP previous value 59 -> current value 37",
+      "timestamp": "2026-06-09T10:23:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "36",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 97 -> current value 65",
+      "timestamp": "2026-06-09T10:22:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "37",
+      "patientId": "7",
+      "message": "ABnormal JUMP previous value 62 -> current value 91",
+      "timestamp": "2026-06-09T10:21:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "38",
+      "patientId": "16",
+      "message": "Abnormal value with deviation from center value is 16 percent",
+      "timestamp": "2026-06-09T10:20:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "39",
+      "patientId": "3",
+      "message": "ABnormal JUMP previous value 74 -> current value 101",
+      "timestamp": "2026-06-09T10:19:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "40",
+      "patientId": "14",
+      "message": "ABnormal JUMP previous value 60 -> current value 38",
+      "timestamp": "2026-06-09T10:18:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "41",
+      "patientId": "15",
+      "message": "ABnormal JUMP previous value 106 -> current value 81",
+      "timestamp": "2026-06-09T10:17:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "42",
+      "patientId": "14",
+      "message": "ABnormal JUMP previous value 65 -> current value 51",
+      "timestamp": "2026-06-09T10:16:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "43",
+      "patientId": "16",
+      "message": "Abnormal value with deviation from center value is 60 percent",
+      "timestamp": "2026-06-09T10:15:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "44",
+      "patientId": "3",
+      "message": "ABnormal JUMP previous value 63 -> current value 35",
+      "timestamp": "2026-06-09T10:14:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "45",
+      "patientId": "6",
+      "message": "ABnormal JUMP previous value 65 -> current value 99",
+      "timestamp": "2026-06-09T10:13:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "46",
+      "patientId": "4",
+      "message": "ABnormal JUMP previous value 110 -> current value 83",
+      "timestamp": "2026-06-09T10:12:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "47",
+      "patientId": "7",
+      "message": "Abnormal value with deviation from center value is 30 percent",
+      "timestamp": "2026-06-09T10:11:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "48",
+      "patientId": "8",
+      "message": "ABnormal JUMP previous value 110 -> current value 127",
+      "timestamp": "2026-06-09T10:10:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "49",
+      "patientId": "17",
+      "message": "ABnormal JUMP previous value 97 -> current value 132",
+      "timestamp": "2026-06-09T10:09:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "50",
+      "patientId": "4",
+      "message": "ABnormal JUMP previous value 61 -> current value 43",
+      "timestamp": "2026-06-09T10:08:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "51",
+      "patientId": "20",
+      "message": "ABnormal JUMP previous value 99 -> current value 120",
+      "timestamp": "2026-06-09T10:07:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "52",
+      "patientId": "4",
+      "message": "ABnormal JUMP previous value 62 -> current value 95",
+      "timestamp": "2026-06-09T10:06:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "53",
+      "patientId": "13",
+      "message": "ABnormal JUMP previous value 62 -> current value 49",
+      "timestamp": "2026-06-09T10:05:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "54",
+      "patientId": "2",
+      "message": "ABnormal JUMP previous value 66 -> current value 37",
+      "timestamp": "2026-06-09T10:04:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "55",
+      "patientId": "20",
+      "message": "ABnormal JUMP previous value 63 -> current value 35",
+      "timestamp": "2026-06-09T10:03:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "56",
+      "patientId": "10",
+      "message": "Abnormal value with deviation from center value is 16 percent",
+      "timestamp": "2026-06-09T10:02:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "57",
+      "patientId": "12",
+      "message": "ABnormal JUMP previous value 55 -> current value 35",
+      "timestamp": "2026-06-09T10:01:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "58",
+      "patientId": "9",
+      "message": "Abnormal value with deviation from center value is 47 percent",
+      "timestamp": "2026-06-09T10:00:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "59",
+      "patientId": "16",
+      "message": "ABnormal JUMP previous value 63 -> current value 94",
+      "timestamp": "2026-06-09T09:59:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "60",
+      "patientId": "6",
+      "message": "Abnormal value with deviation from center value is 22 percent",
+      "timestamp": "2026-06-09T09:58:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "61",
+      "patientId": "2",
+      "message": "ABnormal JUMP previous value 110 -> current value 85",
+      "timestamp": "2026-06-09T09:57:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "62",
+      "patientId": "4",
+      "message": "Abnormal value with deviation from center value is 29 percent",
+      "timestamp": "2026-06-09T09:56:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "63",
+      "patientId": "7",
+      "message": "ABnormal JUMP previous value 96 -> current value 69",
+      "timestamp": "2026-06-09T09:55:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "64",
+      "patientId": "4",
+      "message": "Abnormal value with deviation from center value is 61 percent",
+      "timestamp": "2026-06-09T09:54:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "65",
+      "patientId": "2",
+      "message": "Abnormal value with deviation from center value is 9 percent",
+      "timestamp": "2026-06-09T09:53:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "66",
+      "patientId": "1",
+      "message": "ABnormal JUMP previous value 74 -> current value 87",
+      "timestamp": "2026-06-09T09:52:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "67",
+      "patientId": "5",
+      "message": "Abnormal value with deviation from center value is 36 percent",
+      "timestamp": "2026-06-09T09:51:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "68",
+      "patientId": "16",
+      "message": "Abnormal value with deviation from center value is 55 percent",
+      "timestamp": "2026-06-09T09:50:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "69",
+      "patientId": "16",
+      "message": "ABnormal JUMP previous value 59 -> current value 92",
+      "timestamp": "2026-06-09T09:49:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "70",
+      "patientId": "18",
+      "message": "ABnormal JUMP previous value 64 -> current value 48",
+      "timestamp": "2026-06-09T09:48:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "71",
+      "patientId": "15",
+      "message": "ABnormal JUMP previous value 63 -> current value 46",
+      "timestamp": "2026-06-09T09:47:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "72",
+      "patientId": "15",
+      "message": "ABnormal JUMP previous value 73 -> current value 99",
+      "timestamp": "2026-06-09T09:46:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "73",
+      "patientId": "14",
+      "message": "ABnormal JUMP previous value 84 -> current value 111",
+      "timestamp": "2026-06-09T09:45:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "74",
+      "patientId": "5",
+      "message": "ABnormal JUMP previous value 62 -> current value 74",
+      "timestamp": "2026-06-09T09:44:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "75",
+      "patientId": "14",
+      "message": "Abnormal value with deviation from center value is 33 percent",
+      "timestamp": "2026-06-09T09:43:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "76",
+      "patientId": "20",
+      "message": "Abnormal value with deviation from center value is 13 percent",
+      "timestamp": "2026-06-09T09:42:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "77",
+      "patientId": "12",
+      "message": "Abnormal value with deviation from center value is 58 percent",
+      "timestamp": "2026-06-09T09:41:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "78",
+      "patientId": "1",
+      "message": "Abnormal value with deviation from center value is 44 percent",
+      "timestamp": "2026-06-09T09:40:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "79",
+      "patientId": "10",
+      "message": "Abnormal value with deviation from center value is 45 percent",
+      "timestamp": "2026-06-09T09:39:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "80",
+      "patientId": "11",
+      "message": "ABnormal JUMP previous value 58 -> current value 81",
+      "timestamp": "2026-06-09T09:38:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "81",
+      "patientId": "5",
+      "message": "ABnormal JUMP previous value 63 -> current value 76",
+      "timestamp": "2026-06-09T09:37:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "82",
+      "patientId": "17",
+      "message": "ABnormal JUMP previous value 73 -> current value 86",
+      "timestamp": "2026-06-09T09:36:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "83",
+      "patientId": "17",
+      "message": "Abnormal value with deviation from center value is 21 percent",
+      "timestamp": "2026-06-09T09:35:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "84",
+      "patientId": "7",
+      "message": "ABnormal JUMP previous value 74 -> current value 88",
+      "timestamp": "2026-06-09T09:34:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "85",
+      "patientId": "12",
+      "message": "ABnormal JUMP previous value 65 -> current value 82",
+      "timestamp": "2026-06-09T09:33:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "86",
+      "patientId": "14",
+      "message": "Abnormal value with deviation from center value is 38 percent",
+      "timestamp": "2026-06-09T09:32:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "87",
+      "patientId": "19",
+      "message": "ABnormal JUMP previous value 74 -> current value 58",
+      "timestamp": "2026-06-09T09:31:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "88",
+      "patientId": "6",
+      "message": "Abnormal value with deviation from center value is 51 percent",
+      "timestamp": "2026-06-09T09:30:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "89",
+      "patientId": "12",
+      "message": "Abnormal value with deviation from center value is 20 percent",
+      "timestamp": "2026-06-09T09:29:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "90",
+      "patientId": "4",
+      "message": "ABnormal JUMP previous value 108 -> current value 79",
+      "timestamp": "2026-06-09T09:28:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "91",
+      "patientId": "4",
+      "message": "ABnormal JUMP previous value 70 -> current value 103",
+      "timestamp": "2026-06-09T09:27:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "92",
+      "patientId": "11",
+      "message": "ABnormal JUMP previous value 78 -> current value 51",
+      "timestamp": "2026-06-09T09:26:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "93",
+      "patientId": "16",
+      "message": "Abnormal value with deviation from center value is 65 percent",
+      "timestamp": "2026-06-09T09:25:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "94",
+      "patientId": "1",
+      "message": "ABnormal JUMP previous value 97 -> current value 64",
+      "timestamp": "2026-06-09T09:24:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
+    },
+    {
+      "id": "95",
+      "patientId": "3",
+      "message": "Abnormal value with deviation from center value is 52 percent",
+      "timestamp": "2026-06-09T09:23:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "96",
+      "patientId": "16",
+      "message": "Abnormal value with deviation from center value is 52 percent",
+      "timestamp": "2026-06-09T09:22:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MAJOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "97",
+      "patientId": "2",
+      "message": "ABnormal JUMP previous value 79 -> current value 63",
+      "timestamp": "2026-06-09T09:21:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "98",
+      "patientId": "19",
+      "message": "Abnormal value with deviation from center value is 42 percent",
+      "timestamp": "2026-06-09T09:20:08.787Z",
+      "type": "ABNORMAL_VALUE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "99",
+      "patientId": "17",
+      "message": "ABnormal JUMP previous value 86 -> current value 74",
+      "timestamp": "2026-06-09T09:19:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    },
+    {
+      "id": "100",
+      "patientId": "11",
+      "message": "ABnormal JUMP previous value 73 -> current value 99",
+      "timestamp": "2026-06-09T09:18:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "MINOR",
+      "status": "CREATED"
+    }
+  ],
+  "notificationHistory": []
+}
