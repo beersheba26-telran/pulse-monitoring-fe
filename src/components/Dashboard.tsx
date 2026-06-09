@@ -7,8 +7,12 @@ import {
   Table,
   Text,
 } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
+import PatientPopover from "./PatientPopover";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
+import { notificationsService } from "../services/NotificationsServiceImpl";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   MINOR: { bg: "yellow.300", text: "black" },
@@ -36,6 +40,44 @@ const Dashboard = () => {
   const { data, isLoading, isError, error, isFetching } = useNotificationsPolling({
     pollIntervalMs: 5000,
   });
+  const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+
+  const patientQuery = useQuery({
+    queryKey: ["patient", selectedPatientId],
+    queryFn: ({ signal }) => notificationsService.getPatientByPatientId(selectedPatientId!, signal),
+    enabled: Boolean(isPatientPopoverOpen && selectedPatientId),
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (!isPatientPopoverOpen) {
+      return;
+    }
+
+    const handleKeyDown = () => {
+      setIsPatientPopoverOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPatientPopoverOpen]);
+
+  const handleOpenPatientPopover = (patientId: string) => {
+    setSelectedPatientId(patientId);
+    setIsPatientPopoverOpen(true);
+  };
+
+  const handlePatientPopoverOpenChange = (open: boolean) => {
+    setIsPatientPopoverOpen(open);
+
+    if (!open) {
+      setSelectedPatientId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -101,7 +143,15 @@ const Dashboard = () => {
               const rowColor = ROW_COLORS[severityValue] ?? "transparent";
 
               return (
-                <Table.Row key={notification.id} bg={rowColor}>
+                <Table.Row
+                  key={notification.id}
+                  bg={rowColor}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    handleOpenPatientPopover(notification.patientId);
+                  }}
+                  cursor="context-menu"
+                >
                   <Table.Cell whiteSpace="nowrap">{notification.type}</Table.Cell>
                   <Table.Cell>
                     <Badge bg={statusColor.bg} color={statusColor.text} px="2" py="1" borderRadius="md">
@@ -126,6 +176,14 @@ const Dashboard = () => {
           </Table.Root>
         </Box>
       </Box>
+
+      <PatientPopover
+        open={isPatientPopoverOpen}
+        onOpenChange={handlePatientPopoverOpenChange}
+        patient={patientQuery.data ?? null}
+        isLoading={patientQuery.isLoading}
+        errorMessage={patientQuery.isError ? (patientQuery.error as Error).message : undefined}
+      />
     </Box>
   );
 };

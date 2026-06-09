@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { NotificationData } from "../model/dashboard_types";
+import type { NotificationData, PatientData } from "../model/dashboard_types";
 import type NotificationsService from "./NotificationsService";
 
 type NotificationDto = Omit<NotificationData, "timestamp"> & {
@@ -26,6 +26,42 @@ class NotificationsServiceImpl implements NotificationsService {
 			...notification,
 			timestamp: new Date(notification.timestamp),
 		}));
+	}
+
+	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {
+		
+
+		try {
+			const response = await notificationsApi.get<PatientData>(`/patients/${patientId}`, {
+				signal,
+			});
+
+			return response.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 404) {
+				return null;
+			}
+
+			throw error;
+		}
+	}
+
+	async getPatientByNotificationId(notificationId: string, signal?: AbortSignal): Promise<PatientData | null> {
+		
+
+		try {
+			const notificationResponse = await notificationsApi.get<NotificationDto>(`/notifications/${notificationId}`, {
+				signal,
+			});
+
+			return this.getPatientByPatientId(notificationResponse.data.patientId, signal);
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 404) {
+				return null;
+			}
+
+			throw error;
+		}
 	}
 }
 
