@@ -1181,6 +1181,15 @@
       "type": "JUMP_RATE",
       "severity": "MINOR",
       "status": "CREATED"
+    },
+    {
+      "id": "101",
+      "patientId": "11",
+      "message": "ABnormal JUMP previous value 73 -> current value 130",
+      "timestamp": "2026-06-09T11:18:08.787Z",
+      "type": "JUMP_RATE",
+      "severity": "CRITICAL",
+      "status": "CREATED"
     }
   ],
   "notificationHistory": []

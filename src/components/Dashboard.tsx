@@ -66,11 +66,11 @@ const Dashboard = () => {
       <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
         <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
           <Table.ColumnGroup>
-            <Table.Column htmlWidth="13%" />
+            <Table.Column htmlWidth="18%" />
             <Table.Column htmlWidth="14%" />
             <Table.Column htmlWidth="14%" />
             <Table.Column htmlWidth="22%" />
-            <Table.Column htmlWidth="37%" />
+            <Table.Column htmlWidth="32%" />
           </Table.ColumnGroup>
 
           <Table.Header>
@@ -87,11 +87,11 @@ const Dashboard = () => {
         <Box maxH="420px" overflowY="auto" overflowX="hidden" css={{ scrollbarGutter: "stable" }}>
           <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
             <Table.ColumnGroup>
-              <Table.Column htmlWidth="13%" />
+              <Table.Column htmlWidth="18%" />
               <Table.Column htmlWidth="14%" />
               <Table.Column htmlWidth="14%" />
               <Table.Column htmlWidth="22%" />
-              <Table.Column htmlWidth="37%" />
+              <Table.Column htmlWidth="32%" />
             </Table.ColumnGroup>
           <Table.Body>
             {data?.map((notification) => {
@@ -102,7 +102,7 @@ const Dashboard = () => {
 
               return (
                 <Table.Row key={notification.id} bg={rowColor}>
-                  <Table.Cell>{notification.type}</Table.Cell>
+                  <Table.Cell whiteSpace="nowrap">{notification.type}</Table.Cell>
                   <Table.Cell>
                     <Badge bg={statusColor.bg} color={statusColor.text} px="2" py="1" borderRadius="md">
                       {severityValue}
