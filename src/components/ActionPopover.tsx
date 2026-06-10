@@ -10,18 +10,22 @@ import {
   Portal,
   Separator,
   SimpleGrid,
+  Table,
   Text,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { actionOptions, type ActionOption, type NotificationData, type PatientData } from "../model/dashboard_types";
 import { toNotificationPresentation } from "../services/NotificationsDataProcessing";
+import { notificationsService } from "../services/NotificationsServiceImpl";
 
 type ActionPopoverProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patient: PatientData | null;
   selectedNotification: NotificationData | null;
+  canPerformActions?: boolean;
   isLoading?: boolean;
   errorMessage?: string;
   onConfirm: (action: ActionOption, report: string) => Promise<void>;
@@ -45,6 +49,7 @@ const ActionPopover = ({
   onOpenChange,
   patient,
   selectedNotification,
+  canPerformActions = true,
   isLoading = false,
   errorMessage,
   onConfirm,
@@ -53,6 +58,29 @@ const ActionPopover = ({
 }: ActionPopoverProps) => {
   const [selectedAction, setSelectedAction] = useState<ActionOption>(actionOptions[0]);
   const [report, setReport] = useState("");
+
+  const notificationHistoryQuery = useQuery({
+    queryKey: ["notification-history", selectedNotification?.id],
+    queryFn: ({ signal }) => notificationsService.getNotificationHistoryByNotificationId(selectedNotification!.id, signal),
+    enabled: Boolean(open && selectedNotification),
+    retry: 1,
+  });
+
+  const doctorIds = useMemo(
+    () => Array.from(new Set((notificationHistoryQuery.data ?? []).map((action) => action.doctor_id).filter(Boolean))),
+    [notificationHistoryQuery.data],
+  );
+
+  const doctorQueries = useQueries({
+    queries: doctorIds.map((doctorId) => ({
+      queryKey: ["doctor", doctorId],
+      queryFn: ({ signal }: { signal: AbortSignal }) => notificationsService.getDoctorByDoctorId(doctorId, signal),
+      enabled: Boolean(open && selectedNotification),
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 1,
+    })),
+  });
 
   useEffect(() => {
     if (open) {
@@ -66,10 +94,33 @@ const ActionPopover = ({
     ? toNotificationPresentation(selectedNotification, patient?.name ?? "Unknown patient")
     : null;
 
+  const doctorNameById = useMemo(() => {
+    const map = new Map<string, string>();
+
+    doctorQueries.forEach((query, index) => {
+      const doctor = query.data;
+      if (doctor) {
+        map.set(doctorIds[index], doctor.name);
+      }
+    });
+
+    return map;
+  }, [doctorIds, doctorQueries]);
+
+  const actionHistoryRows = useMemo(
+    () =>
+      (notificationHistoryQuery.data ?? []).map((action) => ({
+        ...action,
+        doctorName: doctorNameById.get(action.doctor_id) ?? `Doctor ${action.doctor_id}`,
+        localTimestamp: action.timestamp.toLocaleString(),
+      })),
+    [doctorNameById, notificationHistoryQuery.data],
+  );
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!selectedNotification) {
+    if (!selectedNotification || !canPerformActions) {
       return;
     }
 
@@ -87,7 +138,14 @@ const ActionPopover = ({
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(2px)" />
         <Dialog.Positioner>
-          <Dialog.Content zIndex={1500} boxShadow="2xl" borderWidth="1px" borderColor="blackAlpha.200">
+          <Dialog.Content
+            zIndex={1500}
+            boxShadow="2xl"
+            borderWidth="1px"
+            borderColor="blackAlpha.200"
+            width="95vw"
+            maxW="1300px"
+          >
             <form onSubmit={handleSubmit}>
               <Dialog.Body>
                 {isLoading && <Text>Loading patient data...</Text>}
@@ -185,36 +243,96 @@ const ActionPopover = ({
                       </Box>
                     </Flex>
 
-                    <Field.Root mt="4" required>
-                      <Field.Label>Select action</Field.Label>
-                      <NativeSelect.Root disabled={isSubmitting}>
-                        <NativeSelect.Field
-                          value={selectedAction}
-                          onChange={(event) => setSelectedAction(event.target.value as ActionOption)}
-                        >
-                          {actionOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </NativeSelect.Field>
-                        <NativeSelect.Indicator />
-                      </NativeSelect.Root>
-                    </Field.Root>
+                    <Flex mt="4" gap="3" direction={{ base: "column", lg: "row" }} align="stretch">
+                      <Box borderWidth="1px" borderRadius="md" p="3" bg="gray.50" boxShadow="md" flex="2" minW="0">
+                        <Text fontWeight="bold" color="gray.800" mb="2" textAlign="center">
+                          Existing actions for this notification
+                        </Text>
 
-                    <Field.Root mt="3" required>
-                      <Field.Label>Report / reason</Field.Label>
-                      <Input
-                        placeholder="Type report or reason"
-                        value={report}
-                        onChange={(event) => setReport(event.target.value)}
-                        disabled={isSubmitting}
-                      />
-                    </Field.Root>
+                        {notificationHistoryQuery.isLoading && (
+                          <Text color="gray.600">Loading action history...</Text>
+                        )}
 
-                    {submitErrorMessage && (
-                      <Text color="red.500" mt="3">{submitErrorMessage}</Text>
-                    )}
+                        {notificationHistoryQuery.isError && (
+                          <Text color="red.500">Failed to load action history.</Text>
+                        )}
+
+                        {!notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && actionHistoryRows.length === 0 && (
+                          <Text color="gray.600">No actions recorded yet.</Text>
+                        )}
+
+                        {!notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && actionHistoryRows.length > 0 && (
+                          <Box borderWidth="1px" borderRadius="md" overflowX="auto" bg="white">
+                            <Table.Root size="sm" variant="line" tableLayout="fixed" minW="760px">
+                              <Table.ColumnGroup>
+                                <Table.Column htmlWidth="36%" />
+                                <Table.Column htmlWidth="24%" />
+                                <Table.Column htmlWidth="40%" />
+                              </Table.ColumnGroup>
+                              <Table.Header>
+                                <Table.Row>
+                                  <Table.ColumnHeader>Date/time (local)</Table.ColumnHeader>
+                                  <Table.ColumnHeader>Action</Table.ColumnHeader>
+                                  <Table.ColumnHeader>Doctor</Table.ColumnHeader>
+                                </Table.Row>
+                              </Table.Header>
+                              <Table.Body>
+                                {actionHistoryRows.map((action) => (
+                                  <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_id}`}>
+                                    <Table.Cell>
+                                      <Text {...fieldValueStyles} whiteSpace="nowrap">{action.localTimestamp}</Text>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      <Badge colorPalette="blue" variant="subtle">{action.action}</Badge>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                      <Text {...fieldValueStyles}>{action.doctorName}</Text>
+                                    </Table.Cell>
+                                  </Table.Row>
+                                ))}
+                              </Table.Body>
+                            </Table.Root>
+                          </Box>
+                        )}
+                      </Box>
+
+                      {canPerformActions && (
+                        <Box borderWidth="1px" borderRadius="md" p="3" bg="white" boxShadow="md" flex="1" minW="320px" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+                          <Flex direction="column" gap="3" align="center" width="100%">
+                            <Field.Root required width="100%" maxW="360px">
+                              <Field.Label justifyContent="center" textAlign="center">Select action</Field.Label>
+                              <NativeSelect.Root disabled={isSubmitting}>
+                                <NativeSelect.Field
+                                  value={selectedAction}
+                                  onChange={(event) => setSelectedAction(event.target.value as ActionOption)}
+                                >
+                                  {actionOptions.map((option) => (
+                                    <option key={option} value={option}>
+                                      {option}
+                                    </option>
+                                  ))}
+                                </NativeSelect.Field>
+                                <NativeSelect.Indicator />
+                              </NativeSelect.Root>
+                            </Field.Root>
+
+                            <Field.Root required width="100%" maxW="360px">
+                              <Field.Label justifyContent="center" textAlign="center">Report / reason</Field.Label>
+                              <Input
+                                placeholder="Type report or reason"
+                                value={report}
+                                onChange={(event) => setReport(event.target.value)}
+                                disabled={isSubmitting}
+                              />
+                            </Field.Root>
+                          </Flex>
+
+                          {submitErrorMessage && (
+                            <Text color="red.500" mt="3" textAlign="center">{submitErrorMessage}</Text>
+                          )}
+                        </Box>
+                      )}
+                    </Flex>
                   </Box>
                 )}
               </Dialog.Body>
@@ -226,17 +344,19 @@ const ActionPopover = ({
                   onClick={() => onOpenChange(false)}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {canPerformActions ? "Cancel" : "Close"}
                 </Button>
-                <Button
-                  size="sm"
-                  colorPalette="blue"
-                  type="submit"
-                  loading={isSubmitting}
-                  disabled={!selectedNotification || isLoading || !!errorMessage || !report.trim()}
-                >
-                  OK
-                </Button>
+                {canPerformActions && (
+                  <Button
+                    size="sm"
+                    colorPalette="blue"
+                    type="submit"
+                    loading={isSubmitting}
+                    disabled={!selectedNotification || isLoading || !!errorMessage || !report.trim()}
+                  >
+                    OK
+                  </Button>
+                )}
               </Dialog.Footer>
             </form>
             <Dialog.CloseTrigger />
