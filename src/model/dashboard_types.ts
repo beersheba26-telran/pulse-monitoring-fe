@@ -1,7 +1,13 @@
+export type DoctorData = {
+    id: string;
+    name: string;
+    patient_ids: string[];
+}
 export type PatientData = {
     id: string;
     name: string;
     age: number;
+    doctor_ids: string[];
     lastHeartRateValues: number[];
     weight: number;
     height: number;

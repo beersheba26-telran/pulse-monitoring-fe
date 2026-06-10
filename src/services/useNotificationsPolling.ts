@@ -11,10 +11,22 @@ export const DEFAULT_NOTIFICATIONS_POLL_INTERVAL_MS = 5000;
 export function useNotificationsPolling(options?: NotificationsPollingOptions) {
     const pollIntervalMs =
         options?.pollIntervalMs ?? DEFAULT_NOTIFICATIONS_POLL_INTERVAL_MS;
+    const doctorId = options?.doctorId;
+    const patientId = options?.patientId;
 
     return useQuery<NotificationData[]>({
-        queryKey: notificationsQueryKey,
-        queryFn: ({ signal }) => notificationsService.getNotifications(signal),
+        queryKey: [...notificationsQueryKey, doctorId ?? null, patientId ?? null],
+        queryFn: ({ signal }) => {
+            if (patientId) {
+                return notificationsService.getNotificationsPatient(patientId, signal);
+            }
+
+            if (doctorId) {
+                return notificationsService.getNotificationsDoctor(doctorId, signal);
+            }
+
+            return Promise.resolve([]);
+        },
         refetchInterval: pollIntervalMs,
         staleTime: Math.floor(pollIntervalMs * 0.8),
         gcTime: 5 * 60 * 1000,

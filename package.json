@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "mock:generate": "node mock/generate-db.cjs",
     "mock": "json-server --watch mock/db.json --port 3001",
     "mock:start": "npm run mock",
     "build": "tsc -b && vite build",
