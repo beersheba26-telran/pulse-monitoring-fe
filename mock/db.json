@@ -1069,7 +1069,7 @@
       "timestamp": "2026-06-10T08:30:40.290Z",
       "type": "ABNORMAL_VALUE",
       "severity": "MAJOR",
-      "status": "CREATED"
+      "status": "ACKNOWLEDGED"
     },
     {
       "id": "4",
@@ -1078,7 +1078,7 @@
       "timestamp": "2026-06-10T08:29:40.290Z",
       "type": "JUMP_RATE",
       "severity": "CRITICAL",
-      "status": "CREATED"
+      "status": "RESOLVED"
     },
     {
       "id": "5",
@@ -1870,7 +1870,7 @@
       "timestamp": "2026-06-10T07:01:40.290Z",
       "type": "ABNORMAL_VALUE",
       "severity": "MAJOR",
-      "status": "CREATED"
+      "status": "RESOLVED"
     },
     {
       "id": "93",
@@ -2851,7 +2851,7 @@
       "timestamp": "2026-06-10T11:13:40.290Z",
       "type": "JUMP_RATE",
       "severity": "MINOR",
-      "status": "CREATED"
+      "status": "ACKNOWLEDGED"
     },
     {
       "id": "202",
@@ -2881,6 +2881,42 @@
         }
       ],
       "id": "hZ8AooZyNEE"
+    },
+    {
+      "notificationId": "3",
+      "actions": [
+        {
+          "action": "ACKNOWLEDGED",
+          "timestamp": "2026-06-10T16:47:17.695Z",
+          "report": "additional monitoring required",
+          "doctor_id": "1"
+        }
+      ],
+      "id": "88x_Lx7ZVP4"
+    },
+    {
+      "notificationId": "201",
+      "actions": [
+        {
+          "action": "ACKNOWLEDGED",
+          "timestamp": "2026-06-10T16:54:53.291Z",
+          "report": "monitoring for heart rate of Samuel",
+          "doctor_id": "1"
+        }
+      ],
+      "id": "KXAzYcu3ktg"
+    },
+    {
+      "notificationId": "92",
+      "actions": [
+        {
+          "action": "RESOLVED",
+          "timestamp": "2026-06-10T18:00:29.615Z",
+          "report": "drug xxx against arrhythmia",
+          "doctor_id": "2"
+        }
+      ],
+      "id": "_Rs2K8Kp6cE"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
