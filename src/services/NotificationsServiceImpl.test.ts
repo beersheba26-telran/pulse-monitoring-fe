@@ -295,6 +295,13 @@ describe("NotificationsServiceImpl", () => {
       doctor_id: "1",
     });
 
+    expect(patchMock).toHaveBeenCalledWith(
+      "/notifications/15",
+      {
+        status: "ACKNOWLEDGED",
+      },
+      undefined,
+    );
     expect(getMock).toHaveBeenCalledWith("/notification_history", {
       signal: undefined,
     });
@@ -315,13 +322,13 @@ describe("NotificationsServiceImpl", () => {
         signal: undefined,
       },
     );
-    expect(patchMock).not.toHaveBeenCalled();
+    expect(patchMock).toHaveBeenCalledTimes(1);
 
     vi.resetModules();
   });
 
   it("appends action to existing notification history", async () => {
-    const getMock = vi.fn().mockResolvedValueOnce({
+    const getMock = vi.fn().mockImplementation(async () => ({
       data: [
         {
           id: "history-1",
@@ -335,9 +342,9 @@ describe("NotificationsServiceImpl", () => {
           ],
         },
       ],
-    });
+    }));
     const postMock = vi.fn();
-    const patchMock = vi.fn().mockResolvedValueOnce({ data: {} });
+    const patchMock = vi.fn().mockImplementation(async () => ({ data: {} }));
 
     vi.doMock("axios", () => ({
       default: {
@@ -359,6 +366,14 @@ describe("NotificationsServiceImpl", () => {
       doctor_id: "2",
     });
 
+    expect(patchMock).toHaveBeenNthCalledWith(
+      1,
+      "/notifications/15",
+      {
+        status: "RESOLVED",
+      },
+      undefined,
+    );
     expect(postMock).not.toHaveBeenCalled();
     expect(patchMock).toHaveBeenCalledWith(
       "/notification_history/history-1",
@@ -377,9 +392,7 @@ describe("NotificationsServiceImpl", () => {
           },
         ],
       },
-      {
-        signal: undefined,
-      },
+      { signal: undefined },
     );
 
     vi.resetModules();

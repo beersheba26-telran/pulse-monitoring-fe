@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { ActionData, NotificationData, PatientData } from "../model/dashboard_types";
+import type { ActionData, DoctorData, NotificationData, PatientData } from "../model/dashboard_types";
 import type NotificationsService from "./NotificationsService";
 
 type NotificationDto = Omit<NotificationData, "timestamp"> & {
@@ -9,6 +9,7 @@ type NotificationDto = Omit<NotificationData, "timestamp"> & {
 
 type DoctorDto = {
 	id: string;
+	name: string;
 	patient_ids: string[];
 };
 
@@ -87,6 +88,46 @@ class NotificationsServiceImpl implements NotificationsService {
 		return this.sortNotificationsByTimestampDesc(this.mapNotifications(filteredNotifications));
 	}
 
+	async getNotificationHistoryByNotificationId(notificationId: string, signal?: AbortSignal): Promise<ActionData[]> {
+		if (!notificationId) {
+			return [];
+		}
+
+		const historyResponse = await notificationsApi.get<NotificationHistoryDto[]>("/notification_history", { signal });
+		const notificationHistory = historyResponse.data.find((history) => history.notificationId === notificationId);
+
+		if (!notificationHistory) {
+			return [];
+		}
+
+		return [...(notificationHistory.actions ?? [])]
+			.map((action) => ({
+				...action,
+				timestamp: new Date(action.timestamp),
+			}))
+			.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+	}
+
+	async getDoctorByDoctorId(doctorId: string, signal?: AbortSignal): Promise<DoctorData | null> {
+		if (!doctorId) {
+			return null;
+		}
+
+		try {
+			const response = await notificationsApi.get<DoctorDto>(`/doctors/${doctorId}`, {
+				signal,
+			});
+
+			return response.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 404) {
+				return null;
+			}
+
+			throw error;
+		}
+	}
+
 	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {
 		
 
@@ -128,10 +169,19 @@ class NotificationsServiceImpl implements NotificationsService {
 			throw new Error("notificationId is required");
 		}
 
+		const notificationStatus = action.action;
 		const actionToPersist: ActionDto = {
 			...action,
 			timestamp: action.timestamp.toISOString(),
 		};
+
+		await notificationsApi.patch(
+			`/notifications/${notificationId}`,
+			{
+				status: notificationStatus,
+			},
+			signal ? { signal } : undefined,
+		);
 
 		const historyResponse = await notificationsApi.get<NotificationHistoryDto[]>("/notification_history", { signal });
 
