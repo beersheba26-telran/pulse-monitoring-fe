@@ -19,8 +19,13 @@ type MockPatientDto = {
   height: number;
 };
 
+type MockDoctorDto = {
+  id: string;
+  patient_ids: string[];
+};
+
 describe("NotificationsServiceImpl", () => {
-  it("maps timestamp strings to Date instances", async () => {
+  it("returns notifications only for a specific patient", async () => {
     const getMock = vi.fn().mockResolvedValue({
       data: [
         {
@@ -46,10 +51,11 @@ describe("NotificationsServiceImpl", () => {
     const { default: NotificationsServiceImpl } = await import("./NotificationsServiceImpl");
 
     const service = new NotificationsServiceImpl();
-    const result = await service.getNotifications();
+    const result = await service.getNotificationsPatient("13");
 
     expect(getMock).toHaveBeenCalledWith("/notifications", {
       params: {
+        patientId: "13",
         _sort: "-timestamp",
       },
       signal: undefined,
@@ -58,6 +64,69 @@ describe("NotificationsServiceImpl", () => {
     expect(result[0]).toBeDefined();
     expect(result[0].timestamp).toBeInstanceOf(Date);
     expect(result[0].timestamp.toISOString()).toBe("2026-06-09T10:57:08.787Z");
+
+    vi.resetModules();
+  });
+
+  it("returns doctor notifications filtered by doctor patient ids", async () => {
+    const doctor: MockDoctorDto = {
+      id: "1",
+      patient_ids: ["13", "14"],
+    };
+
+    const notifications: MockNotificationDto[] = [
+      {
+        id: "1",
+        patientId: "13",
+        message: "ABnormal JUMP previous value 84 -> current value 107",
+        timestamp: "2026-06-09T10:57:08.787Z",
+        type: "JUMP_RATE",
+        severity: "MINOR",
+        status: "CREATED",
+      },
+      {
+        id: "2",
+        patientId: "99",
+        message: "ABnormal JUMP previous value 70 -> current value 95",
+        timestamp: "2026-06-09T10:56:08.787Z",
+        type: "JUMP_RATE",
+        severity: "MAJOR",
+        status: "CREATED",
+      },
+    ];
+
+    const getMock = vi
+      .fn()
+      .mockResolvedValueOnce({ data: doctor })
+      .mockResolvedValueOnce({ data: notifications });
+
+    vi.doMock("axios", () => ({
+      default: {
+        create: vi.fn(() => ({
+          get: getMock,
+        })),
+        isAxiosError: (error: unknown) =>
+          typeof error === "object" && error !== null && "isAxiosError" in error,
+      },
+    }));
+
+    const { default: NotificationsServiceImpl } = await import("./NotificationsServiceImpl");
+
+    const service = new NotificationsServiceImpl();
+    const result = await service.getNotificationsDoctor("1");
+
+    expect(getMock).toHaveBeenNthCalledWith(1, "/doctors/1", {
+      signal: undefined,
+    });
+    expect(getMock).toHaveBeenNthCalledWith(2, "/notifications", {
+      params: {
+        _sort: "-timestamp",
+      },
+      signal: undefined,
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0]?.patientId).toBe("13");
+    expect(result[0]?.timestamp).toBeInstanceOf(Date);
 
     vi.resetModules();
   });

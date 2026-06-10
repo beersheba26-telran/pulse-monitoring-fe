@@ -7,6 +7,11 @@ type NotificationDto = Omit<NotificationData, "timestamp"> & {
 	timestamp: string;
 };
 
+type DoctorDto = {
+	id: string;
+	patient_ids: string[];
+};
+
 const API_BASE_URL =  "http://localhost:3001";
 
 const notificationsApi = axios.create({
@@ -14,18 +19,65 @@ const notificationsApi = axios.create({
 });
 
 class NotificationsServiceImpl implements NotificationsService {
-	async getNotifications(signal?: AbortSignal): Promise<NotificationData[]> {
+	private mapNotifications(notifications: NotificationDto[]): NotificationData[] {
+		return notifications.map((notification) => ({
+			...notification,
+			timestamp: new Date(notification.timestamp),
+		}));
+	}
+
+	async getNotificationsPatient(patientId: string, signal?: AbortSignal): Promise<NotificationData[]> {
+		if (!patientId) {
+			return [];
+		}
+
 		const response = await notificationsApi.get<NotificationDto[]>("/notifications", {
+			params: {
+				patientId,
+				_sort: "-timestamp",
+			},
+			signal,
+		});
+
+		return this.mapNotifications(response.data);
+	}
+
+	async getNotificationsDoctor(doctorId: string, signal?: AbortSignal): Promise<NotificationData[]> {
+		if (!doctorId) {
+			return [];
+		}
+
+		let doctor: DoctorDto;
+		try {
+			const doctorResponse = await notificationsApi.get<DoctorDto>(`/doctors/${doctorId}`, {
+				signal,
+			});
+			doctor = doctorResponse.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 404) {
+				return [];
+			}
+
+			throw error;
+		}
+
+		const doctorPatientIds = new Set(doctor.patient_ids ?? []);
+		if (doctorPatientIds.size === 0) {
+			return [];
+		}
+
+		const notificationsResponse = await notificationsApi.get<NotificationDto[]>("/notifications", {
 			params: {
 				_sort: "-timestamp",
 			},
 			signal,
 		});
 
-		return response.data.map((notification) => ({
-			...notification,
-			timestamp: new Date(notification.timestamp),
-		}));
+		const filteredNotifications = notificationsResponse.data.filter((notification) =>
+			doctorPatientIds.has(notification.patientId),
+		);
+
+		return this.mapNotifications(filteredNotifications);
 	}
 
 	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {
