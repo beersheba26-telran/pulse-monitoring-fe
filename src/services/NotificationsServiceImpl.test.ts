@@ -54,9 +54,6 @@ describe("NotificationsServiceImpl", () => {
     const result = await service.getNotificationsPatient("13");
 
     expect(getMock).toHaveBeenCalledWith("/notifications", {
-      params: {
-        _sort: "-timestamp",
-      },
       signal: undefined,
     });
     expect(result).toHaveLength(1);
@@ -118,9 +115,6 @@ describe("NotificationsServiceImpl", () => {
       signal: undefined,
     });
     expect(getMock).toHaveBeenNthCalledWith(2, "/notifications", {
-      params: {
-        _sort: "-timestamp",
-      },
       signal: undefined,
     });
     expect(result).toHaveLength(1);
@@ -272,6 +266,121 @@ describe("NotificationsServiceImpl", () => {
     const result = await service.getPatientByNotificationId("999");
 
     expect(result).toBeNull();
+
+    vi.resetModules();
+  });
+
+  it("creates notification history when it does not exist", async () => {
+    const getMock = vi.fn().mockResolvedValueOnce({ data: [] });
+    const postMock = vi.fn().mockResolvedValueOnce({ data: {} });
+    const patchMock = vi.fn();
+
+    vi.doMock("axios", () => ({
+      default: {
+        create: vi.fn(() => ({
+          get: getMock,
+          post: postMock,
+          patch: patchMock,
+        })),
+      },
+    }));
+
+    const { default: NotificationsServiceImpl } = await import("./NotificationsServiceImpl");
+
+    const service = new NotificationsServiceImpl();
+    await service.addActionToNotification("15", {
+      action: "ACKNOWLEDGED",
+      report: "Seen by doctor",
+      timestamp: new Date("2026-06-10T09:30:00.000Z"),
+      doctor_id: "1",
+    });
+
+    expect(getMock).toHaveBeenCalledWith("/notification_history", {
+      signal: undefined,
+    });
+    expect(postMock).toHaveBeenCalledWith(
+      "/notification_history",
+      {
+        notificationId: "15",
+        actions: [
+          {
+            action: "ACKNOWLEDGED",
+            report: "Seen by doctor",
+            timestamp: "2026-06-10T09:30:00.000Z",
+            doctor_id: "1",
+          },
+        ],
+      },
+      {
+        signal: undefined,
+      },
+    );
+    expect(patchMock).not.toHaveBeenCalled();
+
+    vi.resetModules();
+  });
+
+  it("appends action to existing notification history", async () => {
+    const getMock = vi.fn().mockResolvedValueOnce({
+      data: [
+        {
+          id: "history-1",
+          notificationId: "15",
+          actions: [
+            {
+              action: "ACKNOWLEDGED",
+              report: "Initial acknowledgement",
+              timestamp: "2026-06-10T08:00:00.000Z",
+            },
+          ],
+        },
+      ],
+    });
+    const postMock = vi.fn();
+    const patchMock = vi.fn().mockResolvedValueOnce({ data: {} });
+
+    vi.doMock("axios", () => ({
+      default: {
+        create: vi.fn(() => ({
+          get: getMock,
+          post: postMock,
+          patch: patchMock,
+        })),
+      },
+    }));
+
+    const { default: NotificationsServiceImpl } = await import("./NotificationsServiceImpl");
+
+    const service = new NotificationsServiceImpl();
+    await service.addActionToNotification("15", {
+      action: "RESOLVED",
+      report: "Alert handled",
+      timestamp: new Date("2026-06-10T09:45:00.000Z"),
+      doctor_id: "2",
+    });
+
+    expect(postMock).not.toHaveBeenCalled();
+    expect(patchMock).toHaveBeenCalledWith(
+      "/notification_history/history-1",
+      {
+        actions: [
+          {
+            action: "ACKNOWLEDGED",
+            report: "Initial acknowledgement",
+            timestamp: "2026-06-10T08:00:00.000Z",
+          },
+          {
+            action: "RESOLVED",
+            report: "Alert handled",
+            timestamp: "2026-06-10T09:45:00.000Z",
+            doctor_id: "2",
+          },
+        ],
+      },
+      {
+        signal: undefined,
+      },
+    );
 
     vi.resetModules();
   });

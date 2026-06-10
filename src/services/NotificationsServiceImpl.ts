@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { NotificationData, PatientData } from "../model/dashboard_types";
+import type { ActionData, NotificationData, PatientData } from "../model/dashboard_types";
 import type NotificationsService from "./NotificationsService";
 
 type NotificationDto = Omit<NotificationData, "timestamp"> & {
@@ -10,6 +10,16 @@ type NotificationDto = Omit<NotificationData, "timestamp"> & {
 type DoctorDto = {
 	id: string;
 	patient_ids: string[];
+};
+
+type ActionDto = Omit<ActionData, "timestamp"> & {
+	timestamp: string;
+};
+
+type NotificationHistoryDto = {
+	id: string;
+	notificationId: string;
+	actions: ActionDto[];
 };
 
 const API_BASE_URL =  "http://localhost:3001";
@@ -26,23 +36,22 @@ class NotificationsServiceImpl implements NotificationsService {
 		}));
 	}
 
+	private sortNotificationsByTimestampDesc(notifications: NotificationData[]): NotificationData[] {
+		return [...notifications].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+	}
+
 	async getNotificationsPatient(patientId: string, signal?: AbortSignal): Promise<NotificationData[]> {
 		if (!patientId) {
 			return [];
 		}
 
-		const response = await notificationsApi.get<NotificationDto[]>("/notifications", {
-			params: {
-				_sort: "-timestamp",
-			},
-			signal,
-		});
+		const response = await notificationsApi.get<NotificationDto[]>("/notifications", { signal });
 
 		const filteredNotifications = response.data.filter(
 			(notification) => notification.patientId === patientId,
 		);
 
-		return this.mapNotifications(filteredNotifications);
+		return this.sortNotificationsByTimestampDesc(this.mapNotifications(filteredNotifications));
 	}
 
 	async getNotificationsDoctor(doctorId: string, signal?: AbortSignal): Promise<NotificationData[]> {
@@ -69,18 +78,13 @@ class NotificationsServiceImpl implements NotificationsService {
 			return [];
 		}
 
-		const notificationsResponse = await notificationsApi.get<NotificationDto[]>("/notifications", {
-			params: {
-				_sort: "-timestamp",
-			},
-			signal,
-		});
+		const notificationsResponse = await notificationsApi.get<NotificationDto[]>("/notifications", { signal });
 
 		const filteredNotifications = notificationsResponse.data.filter((notification) =>
 			doctorPatientIds.has(notification.patientId),
 		);
 
-		return this.mapNotifications(filteredNotifications);
+		return this.sortNotificationsByTimestampDesc(this.mapNotifications(filteredNotifications));
 	}
 
 	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {
@@ -117,6 +121,40 @@ class NotificationsServiceImpl implements NotificationsService {
 
 			throw error;
 		}
+	}
+
+	async addActionToNotification(notificationId: string, action: ActionData, signal?: AbortSignal): Promise<void> {
+		if (!notificationId) {
+			throw new Error("notificationId is required");
+		}
+
+		const actionToPersist: ActionDto = {
+			...action,
+			timestamp: action.timestamp.toISOString(),
+		};
+
+		const historyResponse = await notificationsApi.get<NotificationHistoryDto[]>("/notification_history", { signal });
+
+		const existingHistory = historyResponse.data.find((history) => history.notificationId === notificationId);
+		if (!existingHistory) {
+			await notificationsApi.post(
+				"/notification_history",
+				{
+					notificationId,
+					actions: [actionToPersist],
+				},
+				{ signal },
+			);
+			return;
+		}
+
+		await notificationsApi.patch(
+			`/notification_history/${existingHistory.id}`,
+			{
+				actions: [...(existingHistory.actions ?? []), actionToPersist],
+			},
+			{ signal },
+		);
 	}
 }
 

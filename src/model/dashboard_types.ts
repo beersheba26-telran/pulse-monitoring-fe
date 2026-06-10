@@ -21,9 +21,14 @@ export type NotificationData = {
     severity: string;
     status: string;
 }
+export const actionOptions = ["ACKNOWLEDGED", "RESOLVED", "ESCALATED", "IGNORED", "IN_CONSULTING"] as const;
+export type ActionOption = (typeof actionOptions)[number];
+
 export type ActionData = {
-    action: string;
+    action: ActionOption;
     timestamp: Date;
+    report: string;
+    doctor_id: string
 }
 export type NotificationHistory = {
     notificationId: string;

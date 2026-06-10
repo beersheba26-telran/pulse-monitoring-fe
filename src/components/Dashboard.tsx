@@ -7,11 +7,11 @@ import {
   Table,
   Text,
 } from "@chakra-ui/react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
-import PatientPopover from "./PatientPopover";
-import type { NotificationData } from "../model/dashboard_types";
+import ActionPopover from "./ActionPopover";
+import type { ActionOption, NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
 import type { AuthResponse } from "../model/auth_types";
@@ -31,6 +31,21 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
   const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<NotificationData | null>(null);
+
+  const addActionMutation = useMutation({
+    mutationFn: async ({ action, report }: { action: ActionOption; report: string }) => {
+      if (!selectedNotification) {
+        throw new Error("No selected notification");
+      }
+
+      await notificationsService.addActionToNotification(selectedNotification.id, {
+        action,
+        timestamp: new Date(),
+        report,
+        doctor_id: userId,
+      });
+    },
+  });
 
   const patientQuery = useQuery({
     queryKey: ["patient", selectedPatientId],
@@ -98,7 +113,11 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
       return;
     }
 
-    const handleKeyDown = () => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+
       setIsPatientPopoverOpen(false);
     };
 
@@ -221,13 +240,19 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
         </Box>
       </Box>
 
-      <PatientPopover
+      <ActionPopover
         open={isPatientPopoverOpen}
         onOpenChange={handlePatientPopoverOpenChange}
         patient={patientQuery.data ?? null}
         isLoading={patientQuery.isLoading}
         errorMessage={patientQuery.isError ? (patientQuery.error as Error).message : undefined}
         selectedNotification={selectedNotification}
+        onConfirm={async (action, report) => {
+          await addActionMutation.mutateAsync({ action, report });
+          handlePatientPopoverOpenChange(false);
+        }}
+        isSubmitting={addActionMutation.isPending}
+        submitErrorMessage={addActionMutation.isError ? addActionMutation.error.message : undefined}
       />
     </Box>
   );
