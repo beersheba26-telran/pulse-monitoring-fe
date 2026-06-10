@@ -15,33 +15,12 @@ import type { NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
 import type { AuthResponse } from "../model/auth_types";
+import { toNotificationPresentation } from "../services/NotificationsDataProcessing";
 
 type DashboardProps = {
   userId: AuthResponse["userId"];
   role: AuthResponse["role"];
 };
-
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  MINOR: { bg: "yellow.300", text: "black" },
-  MAJOR: { bg: "orange.800", text: "white" },
-  CRITICAL: { bg: "red.500", text: "white" },
-};
-
-const ROW_COLORS: Record<string, string> = {
-  MINOR: "yellow.50",
-  MAJOR: "orange.100",
-  CRITICAL: "red.100",
-};
-
-const formatDateTime = (date: Date) =>
-  new Intl.DateTimeFormat("en-GB", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(date);
 
 const Dashboard = ({ userId, role }: DashboardProps) => {
   const { data, isLoading, isError, error, isFetching } = useNotificationsPolling({
@@ -101,6 +80,17 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
         }),
       ),
     [patientIds, patientNameQueries],
+  );
+
+  const notificationRows = useMemo(
+    () =>
+      (data ?? []).map((notification) => {
+        const patientName = patientNameById.get(notification.patientId)
+          ?? (loadingPatientIds.has(notification.patientId) ? "Loading..." : "Unknown patient");
+
+        return toNotificationPresentation(notification, patientName);
+      }),
+    [data, loadingPatientIds, patientNameById],
   );
 
   useEffect(() => {
@@ -194,34 +184,27 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
               <Table.Column htmlWidth="25%" />
             </Table.ColumnGroup>
           <Table.Body>
-            {data?.map((notification) => {
-              const severityValue = (notification.severity || "UNKNOWN").toUpperCase();
-              const statusValue = (notification.status || "UNKNOWN").toUpperCase();
-              const statusColor = STATUS_COLORS[severityValue] ?? { bg: "gray.200", text: "black" };
-              const rowColor = ROW_COLORS[severityValue] ?? "transparent";
-              const patientName = patientNameById.get(notification.patientId)
-                ?? (loadingPatientIds.has(notification.patientId) ? "Loading..." : "Unknown patient");
-
+            {notificationRows.map((notificationRow) => {
               return (
                 <Table.Row
-                  key={notification.id}
-                  bg={rowColor}
+                  key={notificationRow.id}
+                  bg={notificationRow.severityPresentation.rowBg}
                   onContextMenu={(event) => {
                     event.preventDefault();
-                    handleOpenPatientPopover(notification);
+                    handleOpenPatientPopover(notificationRow.raw);
                   }}
                   cursor="context-menu"
                 >
-                  <Table.Cell whiteSpace="nowrap">{notification.type}</Table.Cell>
+                  <Table.Cell whiteSpace="nowrap">{notificationRow.type}</Table.Cell>
                   <Table.Cell>
-                    <Badge bg={statusColor.bg} color={statusColor.text} px="2" py="1" borderRadius="md">
-                      {severityValue}
+                    <Badge bg={notificationRow.severityPresentation.badgeBg} color={notificationRow.severityPresentation.badgeText} px="2" py="1" borderRadius="md">
+                      {notificationRow.severityText}
                     </Badge>
                   </Table.Cell>
-                  <Table.Cell>{statusValue}</Table.Cell>
-                  <Table.Cell>{patientName}</Table.Cell>
-                  <Table.Cell>{formatDateTime(notification.timestamp)}</Table.Cell>
-                  <Table.Cell>{notification.message}</Table.Cell>
+                  <Table.Cell>{notificationRow.statusText}</Table.Cell>
+                  <Table.Cell>{notificationRow.patientName}</Table.Cell>
+                  <Table.Cell>{notificationRow.formattedTimestamp}</Table.Cell>
+                  <Table.Cell>{notificationRow.message}</Table.Cell>
                 </Table.Row>
               );
             })}

@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 
 import type { NotificationData, PatientData } from '../model/dashboard_types'
+import { toNotificationPresentation } from '../services/NotificationsDataProcessing'
 
 type PatientPopoverProps = {
   open: boolean
@@ -19,18 +20,6 @@ type PatientPopoverProps = {
   selectedNotification: NotificationData | null
   isLoading?: boolean
   errorMessage?: string
-}
-
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  MINOR: { bg: 'yellow.300', text: 'black' },
-  MAJOR: { bg: 'orange.800', text: 'white' },
-  CRITICAL: { bg: 'red.500', text: 'white' },
-}
-
-const ROW_COLORS: Record<string, string> = {
-  MINOR: 'yellow.50',
-  MAJOR: 'orange.100',
-  CRITICAL: 'red.100',
 }
 
 const fieldLabelStyles = {
@@ -53,19 +42,8 @@ const PatientPopover = ({
   errorMessage,
 }: PatientPopoverProps) => {
   const heartRateValues = patient?.lastHeartRateValues ?? []
-  const selectedSeverityValue = (selectedNotification?.severity || 'UNKNOWN').toUpperCase()
-  const selectedStatusValue = (selectedNotification?.status || 'UNKNOWN').toUpperCase()
-  const selectedStatusColor = STATUS_COLORS[selectedSeverityValue] ?? { bg: 'gray.200', text: 'black' }
-  const selectedRowColor = ROW_COLORS[selectedSeverityValue] ?? 'gray.50'
-  const selectedNotificationTimestamp = selectedNotification
-    ? new Intl.DateTimeFormat('en-GB', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }).format(selectedNotification.timestamp)
+  const selectedNotificationPresentation = selectedNotification
+    ? toNotificationPresentation(selectedNotification, patient?.name ?? 'Unknown patient')
     : null
 
   return (
@@ -104,34 +82,34 @@ const PatientPopover = ({
 
                   <Flex direction={{ base: 'column', lg: 'row' }} gap="3" align="stretch">
                     {selectedNotification && (
-                      <Box borderWidth="1px" borderRadius="md" p="3" bg={selectedRowColor} flex="1" minW="0" boxShadow="md">
+                      <Box borderWidth="1px" borderRadius="md" p="3" bg={selectedNotificationPresentation?.severityPresentation.rowBg} flex="1" minW="0" boxShadow="md">
                         <Text fontWeight="bold" color="gray.800" mb="2">
                           Selected notification
                         </Text>
                         <SimpleGrid columns={{ base: 1, sm: 2 }} gap="2">
                           <Box>
                             <Text {...fieldLabelStyles}>Type</Text>
-                            <Text {...fieldValueStyles}>{selectedNotification.type}</Text>
+                            <Text {...fieldValueStyles}>{selectedNotificationPresentation?.type}</Text>
                           </Box>
                           <Box>
                             <Text {...fieldLabelStyles}>Severity</Text>
-                            <Badge bg={selectedStatusColor.bg} color={selectedStatusColor.text} px="2" py="1" borderRadius="md">
-                              {selectedSeverityValue}
+                            <Badge bg={selectedNotificationPresentation?.severityPresentation.badgeBg} color={selectedNotificationPresentation?.severityPresentation.badgeText} px="2" py="1" borderRadius="md">
+                              {selectedNotificationPresentation?.severityText}
                             </Badge>
                           </Box>
                           <Box>
                             <Text {...fieldLabelStyles}>Status</Text>
-                            <Text {...fieldValueStyles}>{selectedStatusValue}</Text>
+                            <Text {...fieldValueStyles}>{selectedNotificationPresentation?.statusText}</Text>
                           </Box>
                           <Box>
                             <Text {...fieldLabelStyles}>Date/time</Text>
-                            <Text {...fieldValueStyles}>{selectedNotificationTimestamp}</Text>
+                            <Text {...fieldValueStyles}>{selectedNotificationPresentation?.formattedTimestamp}</Text>
                           </Box>
                         </SimpleGrid>
                         <Box mt="2">
                           <Text {...fieldLabelStyles}>Message</Text>
                           <Text color="gray.700" fontSize="sm">
-                            {selectedNotification.message}
+                            {selectedNotificationPresentation?.message}
                           </Text>
                         </Box>
                       </Box>
