@@ -8,9 +8,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionPopover from "./ActionPopover";
+import HistoryPopover from "./HistoryPopover";
+import PatientPopover from "./PatientPopover";
 import type { ActionOption, NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
@@ -29,11 +31,18 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
     patientId: role === "patient" ? userId : undefined,
   });
   const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
+  const [isActionPopoverOpen, setIsActionPopoverOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<NotificationData | null>(null);
+  const [isHistoryPopoverOpen, setIsHistoryPopoverOpen] = useState(false);
+  const [historyNotificationId, setHistoryNotificationId] = useState<string | null>(null);
 
   const addActionMutation = useMutation({
     mutationFn: async ({ action, report }: { action: ActionOption; report: string }) => {
+      if (role !== "doctor") {
+        throw new Error("Only users with doctor role can perform actions.");
+      }
+
       if (!selectedNotification) {
         throw new Error("No selected notification");
       }
@@ -50,7 +59,7 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
   const patientQuery = useQuery({
     queryKey: ["patient", selectedPatientId],
     queryFn: ({ signal }) => notificationsService.getPatientByPatientId(selectedPatientId!, signal),
-    enabled: Boolean(isPatientPopoverOpen && selectedPatientId),
+    enabled: Boolean((isPatientPopoverOpen || isActionPopoverOpen) && selectedPatientId),
     retry: 1,
   });
 
@@ -108,26 +117,6 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
     [data, loadingPatientIds, patientNameById],
   );
 
-  useEffect(() => {
-    if (!isPatientPopoverOpen) {
-      return;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") {
-        return;
-      }
-
-      setIsPatientPopoverOpen(false);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isPatientPopoverOpen]);
-
   const handleOpenPatientPopover = (notification: NotificationData) => {
     setSelectedPatientId(notification.patientId);
     setSelectedNotification(notification);
@@ -140,6 +129,22 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
     if (!open) {
       setSelectedPatientId(null);
       setSelectedNotification(null);
+    }
+  };
+
+  const handleOpenActionPopover = (notification: NotificationData) => {
+    setSelectedPatientId(notification.patientId);
+    setSelectedNotification(notification);
+    setIsActionPopoverOpen(true);
+  };
+
+  const handleActionPopoverOpenChange = (open: boolean) => {
+    setIsActionPopoverOpen(open);
+
+    if (!open) {
+      setSelectedPatientId(null);
+      setSelectedNotification(null);
+      addActionMutation.reset();
     }
   };
 
@@ -192,7 +197,7 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
           </Table.Header>
         </Table.Root>
 
-        <Box maxH="420px" overflowY="auto" overflowX="hidden" css={{ scrollbarGutter: "stable" }}>
+        <Box maxH="420px" overflowY="auto" overflowX="hidden">
           <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
             <Table.ColumnGroup>
               <Table.Column htmlWidth="16%" />
@@ -210,7 +215,7 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
                   bg={notificationRow.severityPresentation.rowBg}
                   onContextMenu={(event) => {
                     event.preventDefault();
-                    handleOpenPatientPopover(notificationRow.raw);
+                    handleOpenActionPopover(notificationRow.raw);
                   }}
                   cursor="context-menu"
                 >
@@ -220,8 +225,23 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
                       {notificationRow.severityText}
                     </Badge>
                   </Table.Cell>
-                  <Table.Cell>{notificationRow.statusText}</Table.Cell>
-                  <Table.Cell>{notificationRow.patientName}</Table.Cell>
+                  <Table.Cell
+                    cursor="pointer"
+                    _hover={{ textDecoration: "underline" }}
+                    onClick={() => {
+                      setHistoryNotificationId(notificationRow.id);
+                      setIsHistoryPopoverOpen(true);
+                    }}
+                  >
+                    {notificationRow.statusText}
+                  </Table.Cell>
+                  <Table.Cell
+                    cursor="pointer"
+                    _hover={{ textDecoration: "underline" }}
+                    onClick={() => handleOpenPatientPopover(notificationRow.raw)}
+                  >
+                    {notificationRow.patientName}
+                  </Table.Cell>
                   <Table.Cell>{notificationRow.formattedTimestamp}</Table.Cell>
                   <Table.Cell>{notificationRow.message}</Table.Cell>
                 </Table.Row>
@@ -240,16 +260,32 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
         </Box>
       </Box>
 
-      <ActionPopover
+      <HistoryPopover
+        open={isHistoryPopoverOpen}
+        onOpenChange={setIsHistoryPopoverOpen}
+        notificationId={historyNotificationId}
+      />
+
+      <PatientPopover
         open={isPatientPopoverOpen}
         onOpenChange={handlePatientPopoverOpenChange}
         patient={patientQuery.data ?? null}
         isLoading={patientQuery.isLoading}
         errorMessage={patientQuery.isError ? (patientQuery.error as Error).message : undefined}
         selectedNotification={selectedNotification}
+      />
+
+      <ActionPopover
+        open={isActionPopoverOpen}
+        onOpenChange={handleActionPopoverOpenChange}
+        patient={patientQuery.data ?? null}
+        canPerformActions={role === "doctor"}
+        isLoading={patientQuery.isLoading}
+        errorMessage={patientQuery.isError ? (patientQuery.error as Error).message : undefined}
+        selectedNotification={selectedNotification}
         onConfirm={async (action, report) => {
           await addActionMutation.mutateAsync({ action, report });
-          handlePatientPopoverOpenChange(false);
+          handleActionPopoverOpenChange(false);
         }}
         isSubmitting={addActionMutation.isPending}
         submitErrorMessage={addActionMutation.isError ? addActionMutation.error.message : undefined}
