@@ -678,7 +678,9 @@
     { "id": "197", "patientId": "2", "message": "Abnormal value with deviation from center value is 22 percent", "timestamp": "2026-06-10T05:16:40.290Z", "type": "ABNORMAL_VALUE", "severity": "MINOR", "status": "CREATED" },
     { "id": "198", "patientId": "20", "message": "ABnormal JUMP previous value 77 -> current value 99", "timestamp": "2026-06-10T05:15:40.290Z", "type": "JUMP_RATE", "severity": "MINOR", "status": "CREATED" },
     { "id": "199", "patientId": "10", "message": "Abnormal value with deviation from center value is 62 percent", "timestamp": "2026-06-10T05:14:40.290Z", "type": "ABNORMAL_VALUE", "severity": "MAJOR", "status": "CREATED" },
-    { "id": "200", "patientId": "28", "message": "ABnormal JUMP previous value 63 -> current value 49", "timestamp": "2026-06-10T05:13:40.290Z", "type": "JUMP_RATE", "severity": "MINOR", "status": "CREATED" }
+    { "id": "200", "patientId": "28", "message": "ABnormal JUMP previous value 63 -> current value 49", "timestamp": "2026-06-10T05:13:40.290Z", "type": "JUMP_RATE", "severity": "MINOR", "status": "CREATED" },
+    { "id": "201", "patientId": "28", "message": "ABnormal JUMP previous value 63 -> current value 49", "timestamp": "2026-06-10T11:13:40.290Z", "type": "JUMP_RATE", "severity": "MINOR", "status": "CREATED" },
+    { "id": "202", "patientId": "3", "message": "ABnormal JUMP previous value 63 -> current value 49", "timestamp": "2026-06-10T11:13:40.290Z", "type": "JUMP_RATE", "severity": "MINOR", "status": "CREATED" }
   ],
   "notificationHistory": []
 }

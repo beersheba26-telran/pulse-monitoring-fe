@@ -14,6 +14,12 @@ import PatientPopover from "./PatientPopover";
 import type { NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
+import type { AuthResponse } from "../model/auth_types";
+
+type DashboardProps = {
+  userId: AuthResponse["userId"];
+  role: AuthResponse["role"];
+};
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   MINOR: { bg: "yellow.300", text: "black" },
@@ -37,9 +43,11 @@ const formatDateTime = (date: Date) =>
     second: "2-digit",
   }).format(date);
 
-const Dashboard = () => {
+const Dashboard = ({ userId, role }: DashboardProps) => {
   const { data, isLoading, isError, error, isFetching } = useNotificationsPolling({
     pollIntervalMs: 5000,
+    doctorId: role === "doctor" ? userId : undefined,
+    patientId: role === "patient" ? userId : undefined,
   });
   const [isPatientPopoverOpen, setIsPatientPopoverOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
@@ -146,7 +154,7 @@ const Dashboard = () => {
   return (
     <Box maxW="1100px" mx="auto" px={{ base: "4", md: "6" }} py={{ base: "5", md: "8" }}>
       <Flex justify="space-between" align={{ base: "start", md: "center" }} gap="3" mb="4" direction={{ base: "column", md: "row" }}>
-        <Heading size="lg">Notifications</Heading>
+        <Heading size="lg">Notifications ({role}: {userId})</Heading>
         <Text color="gray.500" fontSize="sm">
           {isFetching ? "Refreshing..." : "Up to date"}
         </Text>
@@ -221,7 +229,7 @@ const Dashboard = () => {
             {(!data || data.length === 0) && (
               <Table.Row>
                 <Table.Cell colSpan={6}>
-                  No notifications found. Ensure mock API is running on http://localhost:3001.
+                  No notifications found for this user.
                 </Table.Cell>
               </Table.Row>
             )}

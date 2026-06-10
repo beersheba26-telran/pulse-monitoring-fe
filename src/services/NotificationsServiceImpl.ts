@@ -33,13 +33,16 @@ class NotificationsServiceImpl implements NotificationsService {
 
 		const response = await notificationsApi.get<NotificationDto[]>("/notifications", {
 			params: {
-				patientId,
 				_sort: "-timestamp",
 			},
 			signal,
 		});
 
-		return this.mapNotifications(response.data);
+		const filteredNotifications = response.data.filter(
+			(notification) => notification.patientId === patientId,
+		);
+
+		return this.mapNotifications(filteredNotifications);
 	}
 
 	async getNotificationsDoctor(doctorId: string, signal?: AbortSignal): Promise<NotificationData[]> {
