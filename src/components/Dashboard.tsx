@@ -7,8 +7,8 @@ import {
   Table,
   Text,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 import PatientPopover from "./PatientPopover";
 import type { NotificationData } from "../model/dashboard_types";
@@ -51,6 +51,49 @@ const Dashboard = () => {
     enabled: Boolean(isPatientPopoverOpen && selectedPatientId),
     retry: 1,
   });
+
+  const patientIds = useMemo(
+    () => Array.from(new Set((data ?? []).map((notification) => notification.patientId))),
+    [data],
+  );
+
+  const patientNameQueries = useQueries({
+    queries: patientIds.map((patientId) => ({
+      queryKey: ["patient-name", patientId],
+      queryFn: ({ signal }: { signal: AbortSignal }) =>
+        notificationsService.getPatientByPatientId(patientId, signal),
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 1,
+    })),
+  });
+
+  const patientNameById = useMemo(
+    () => {
+      const map = new Map<string, string>();
+
+      patientNameQueries.forEach((query, index) => {
+        const patient = query.data;
+        if (patient) {
+          map.set(patientIds[index], patient.name);
+        }
+      });
+
+      return map;
+    },
+    [patientIds, patientNameQueries],
+  );
+
+  const loadingPatientIds = useMemo(
+    () =>
+      new Set(
+        patientIds.filter((_, index) => {
+          const query = patientNameQueries[index];
+          return query?.isLoading || query?.isFetching;
+        }),
+      ),
+    [patientIds, patientNameQueries],
+  );
 
   useEffect(() => {
     if (!isPatientPopoverOpen) {
@@ -112,11 +155,12 @@ const Dashboard = () => {
       <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
         <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
           <Table.ColumnGroup>
+            <Table.Column htmlWidth="16%" />
+            <Table.Column htmlWidth="11%" />
+            <Table.Column htmlWidth="14%" />
+            <Table.Column htmlWidth="16%" />
             <Table.Column htmlWidth="18%" />
-            <Table.Column htmlWidth="14%" />
-            <Table.Column htmlWidth="14%" />
-            <Table.Column htmlWidth="22%" />
-            <Table.Column htmlWidth="32%" />
+            <Table.Column htmlWidth="25%" />
           </Table.ColumnGroup>
 
           <Table.Header>
@@ -124,6 +168,7 @@ const Dashboard = () => {
               <Table.ColumnHeader>Type</Table.ColumnHeader>
               <Table.ColumnHeader>Severity</Table.ColumnHeader>
               <Table.ColumnHeader>Status</Table.ColumnHeader>
+              <Table.ColumnHeader>Patient name</Table.ColumnHeader>
               <Table.ColumnHeader>Date/time</Table.ColumnHeader>
               <Table.ColumnHeader>Message</Table.ColumnHeader>
             </Table.Row>
@@ -133,11 +178,12 @@ const Dashboard = () => {
         <Box maxH="420px" overflowY="auto" overflowX="hidden" css={{ scrollbarGutter: "stable" }}>
           <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
             <Table.ColumnGroup>
+              <Table.Column htmlWidth="16%" />
+              <Table.Column htmlWidth="11%" />
+              <Table.Column htmlWidth="14%" />
+              <Table.Column htmlWidth="16%" />
               <Table.Column htmlWidth="18%" />
-              <Table.Column htmlWidth="14%" />
-              <Table.Column htmlWidth="14%" />
-              <Table.Column htmlWidth="22%" />
-              <Table.Column htmlWidth="32%" />
+              <Table.Column htmlWidth="25%" />
             </Table.ColumnGroup>
           <Table.Body>
             {data?.map((notification) => {
@@ -145,6 +191,8 @@ const Dashboard = () => {
               const statusValue = (notification.status || "UNKNOWN").toUpperCase();
               const statusColor = STATUS_COLORS[severityValue] ?? { bg: "gray.200", text: "black" };
               const rowColor = ROW_COLORS[severityValue] ?? "transparent";
+              const patientName = patientNameById.get(notification.patientId)
+                ?? (loadingPatientIds.has(notification.patientId) ? "Loading..." : "Unknown patient");
 
               return (
                 <Table.Row
@@ -163,6 +211,7 @@ const Dashboard = () => {
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>{statusValue}</Table.Cell>
+                  <Table.Cell>{patientName}</Table.Cell>
                   <Table.Cell>{formatDateTime(notification.timestamp)}</Table.Cell>
                   <Table.Cell>{notification.message}</Table.Cell>
                 </Table.Row>
@@ -171,7 +220,7 @@ const Dashboard = () => {
 
             {(!data || data.length === 0) && (
               <Table.Row>
-                <Table.Cell colSpan={5}>
+                <Table.Cell colSpan={6}>
                   No notifications found. Ensure mock API is running on http://localhost:3001.
                 </Table.Cell>
               </Table.Row>
