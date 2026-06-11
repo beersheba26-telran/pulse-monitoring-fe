@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { ActionData, DoctorData, NotificationData, PatientData } from "../model/dashboard_types";
+import type { ActionData, NotificationData, PatientData } from "../model/dashboard_types";
 import type NotificationsService from "./NotificationsService";
 
 type NotificationDto = Omit<NotificationData, "timestamp"> & {
@@ -13,7 +13,11 @@ type DoctorDto = {
 	patient_ids: string[];
 };
 
-type ActionDto = Omit<ActionData, "timestamp"> & {
+type ActionDto = {
+	action: ActionData["action"];
+	report: string;
+	doctor_name?: string;
+	doctor_id?: string;
 	timestamp: string;
 };
 
@@ -100,32 +104,34 @@ class NotificationsServiceImpl implements NotificationsService {
 			return [];
 		}
 
-		return [...(notificationHistory.actions ?? [])]
+		const actions = [...(notificationHistory.actions ?? [])];
+		const missingDoctorNameIds = Array.from(
+			new Set(
+				actions
+					.filter((action) => !action.doctor_name && Boolean(action.doctor_id))
+					.map((action) => action.doctor_id as string),
+			),
+		);
+
+		let doctorNameById = new Map<string, string>();
+		if (missingDoctorNameIds.length > 0) {
+			const doctorsResponse = await notificationsApi.get<DoctorDto[]>("/doctors", { signal });
+			doctorNameById = new Map(
+				doctorsResponse.data.map((doctor) => [doctor.id, doctor.name]),
+			);
+		}
+
+		return actions
 			.map((action) => ({
-				...action,
+				action: action.action,
+				report: action.report,
+				doctor_name:
+					action.doctor_name ??
+					(action.doctor_id ? doctorNameById.get(action.doctor_id) : undefined) ??
+					"Unknown doctor",
 				timestamp: new Date(action.timestamp),
 			}))
 			.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-	}
-
-	async getDoctorByDoctorId(doctorId: string, signal?: AbortSignal): Promise<DoctorData | null> {
-		if (!doctorId) {
-			return null;
-		}
-
-		try {
-			const response = await notificationsApi.get<DoctorDto>(`/doctors/${doctorId}`, {
-				signal,
-			});
-
-			return response.data;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 404) {
-				return null;
-			}
-
-			throw error;
-		}
 	}
 
 	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {

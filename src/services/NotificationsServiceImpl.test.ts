@@ -270,6 +270,75 @@ describe("NotificationsServiceImpl", () => {
     vi.resetModules();
   });
 
+  it("returns notification history with doctor names resolved inside service", async () => {
+    const getMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: [
+          {
+            id: "history-1",
+            notificationId: "1",
+            actions: [
+              {
+                action: "ACKNOWLEDGED",
+                report: "Reviewed",
+                timestamp: "2026-06-10T08:00:00.000Z",
+                doctor_id: "1",
+              },
+              {
+                action: "RESOLVED",
+                report: "Handled",
+                timestamp: "2026-06-10T09:00:00.000Z",
+                doctor_name: "Dr. Maya Brooks",
+              },
+            ],
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        data: [
+          { id: "1", name: "Dr. Ethan Cole", patient_ids: [] },
+          { id: "2", name: "Dr. Maya Brooks", patient_ids: [] },
+        ],
+      });
+
+    vi.doMock("axios", () => ({
+      default: {
+        create: vi.fn(() => ({
+          get: getMock,
+        })),
+      },
+    }));
+
+    const { default: NotificationsServiceImpl } = await import("./NotificationsServiceImpl");
+
+    const service = new NotificationsServiceImpl();
+    const result = await service.getNotificationHistoryByNotificationId("1");
+
+    expect(getMock).toHaveBeenNthCalledWith(1, "/notification_history", {
+      signal: undefined,
+    });
+    expect(getMock).toHaveBeenNthCalledWith(2, "/doctors", {
+      signal: undefined,
+    });
+    expect(result).toEqual([
+      {
+        action: "RESOLVED",
+        report: "Handled",
+        doctor_name: "Dr. Maya Brooks",
+        timestamp: new Date("2026-06-10T09:00:00.000Z"),
+      },
+      {
+        action: "ACKNOWLEDGED",
+        report: "Reviewed",
+        doctor_name: "Dr. Ethan Cole",
+        timestamp: new Date("2026-06-10T08:00:00.000Z"),
+      },
+    ]);
+
+    vi.resetModules();
+  });
+
   it("creates notification history when it does not exist", async () => {
     const getMock = vi.fn().mockResolvedValueOnce({ data: [] });
     const postMock = vi.fn().mockResolvedValueOnce({ data: {} });
@@ -292,7 +361,7 @@ describe("NotificationsServiceImpl", () => {
       action: "ACKNOWLEDGED",
       report: "Seen by doctor",
       timestamp: new Date("2026-06-10T09:30:00.000Z"),
-      doctor_id: "1",
+      doctor_name: "Dr. Ethan Cole",
     });
 
     expect(patchMock).toHaveBeenCalledWith(
@@ -314,7 +383,7 @@ describe("NotificationsServiceImpl", () => {
             action: "ACKNOWLEDGED",
             report: "Seen by doctor",
             timestamp: "2026-06-10T09:30:00.000Z",
-            doctor_id: "1",
+            doctor_name: "Dr. Ethan Cole",
           },
         ],
       },
@@ -363,7 +432,7 @@ describe("NotificationsServiceImpl", () => {
       action: "RESOLVED",
       report: "Alert handled",
       timestamp: new Date("2026-06-10T09:45:00.000Z"),
-      doctor_id: "2",
+      doctor_name: "Dr. Maya Brooks",
     });
 
     expect(patchMock).toHaveBeenNthCalledWith(
@@ -388,7 +457,7 @@ describe("NotificationsServiceImpl", () => {
             action: "RESOLVED",
             report: "Alert handled",
             timestamp: "2026-06-10T09:45:00.000Z",
-            doctor_id: "2",
+            doctor_name: "Dr. Maya Brooks",
           },
         ],
       },

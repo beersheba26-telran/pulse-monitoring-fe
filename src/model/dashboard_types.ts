@@ -28,7 +28,7 @@ export type ActionData = {
     action: ActionOption;
     timestamp: Date;
     report: string;
-    doctor_id: string
+    doctor_name: string
 }
 export type NotificationHistory = {
     notificationId: string;
