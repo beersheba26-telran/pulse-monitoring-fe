@@ -1,19 +1,31 @@
 
-import { useState } from "react";
-
 import "./App.css";
-import Dashboard from "./components/Dashboard";
+import { Box, Flex } from "@chakra-ui/react";
+import ApplicationBar from "./components/ApplicationBar";
+import Dashboard from "./components/Dashboard.tsx";
 import Login from "./components/Login";
-import type { AuthResponse } from "./model/auth_types";
+import { useAuthStore } from "./store/authStore";
 
 function App() {
-  const [authenticatedUser, setAuthenticatedUser] = useState<AuthResponse | null>(null);
+  const authenticatedUser = useAuthStore((state) => state.authenticatedUser);
+  const clearAuthenticatedUser = useAuthStore((state) => state.clearAuthenticatedUser);
 
   if (!authenticatedUser) {
-    return <Login onLoginSuccess={setAuthenticatedUser} />;
+    return <Login />;
   }
 
-  return <Dashboard userId={authenticatedUser.userId} role={authenticatedUser.role} />;
+  return (
+    <Flex direction="column" h="100dvh" overflow="hidden">
+      <ApplicationBar
+        userName={authenticatedUser.userId}
+        role={authenticatedUser.role}
+        onLogout={clearAuthenticatedUser}
+      />
+      <Box flex="1" minH="0" overflow="hidden">
+        <Dashboard userId={authenticatedUser.userId} role={authenticatedUser.role} />
+      </Box>
+    </Flex>
+  );
 }
 
 export default App;
