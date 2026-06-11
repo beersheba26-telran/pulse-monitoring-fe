@@ -1,12 +1,9 @@
 import { Alert, Box, Button, Field, Flex, Heading, Input, NativeSelect, Stack } from "@chakra-ui/react";
 import { useState } from "react";
 
-import type { AuthResponse, LoginData } from "../model/auth_types";
+import type { LoginData } from "../model/auth_types";
 import { authService } from "../services/AuthServiceImpl";
-
-type LoginProps = {
-  onLoginSuccess: (response: AuthResponse) => void;
-};
+import { useAuthStore } from "../store/authStore";
 
 const defaultFormData: LoginData = {
   id: "",
@@ -14,10 +11,11 @@ const defaultFormData: LoginData = {
   role: "doctor",
 };
 
-const Login = ({ onLoginSuccess }: LoginProps) => {
+const Login = () => {
   const [formData, setFormData] = useState<LoginData>(defaultFormData);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const setAuthenticatedUser = useAuthStore((state) => state.setAuthenticatedUser);
 
   const clearError = () => {
     if (errorMessage) {
@@ -36,7 +34,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
 
     try {
       const response = await authService.login(formData);
-      onLoginSuccess(response);
+      setAuthenticatedUser(response);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Login failed. Please try again.");
     } finally {
