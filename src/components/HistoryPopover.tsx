@@ -8,7 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { notificationsService } from "../services/NotificationsServiceImpl";
 
@@ -31,44 +31,15 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
     retry: 1,
   });
 
-  const doctorIds = useMemo(
-    () => Array.from(new Set((notificationHistoryQuery.data ?? []).map((action) => action.doctor_id).filter(Boolean))),
-    [notificationHistoryQuery.data],
-  );
-
-  const doctorQueries = useQueries({
-    queries: doctorIds.map((doctorId) => ({
-      queryKey: ["doctor", doctorId],
-      queryFn: ({ signal }: { signal: AbortSignal }) => notificationsService.getDoctorByDoctorId(doctorId, signal),
-      enabled: Boolean(open && notificationId),
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      retry: 1,
-    })),
-  });
-
-  const doctorNameById = useMemo(() => {
-    const map = new Map<string, string>();
-
-    doctorQueries.forEach((query, index) => {
-      const doctor = query.data;
-      if (doctor) {
-        map.set(doctorIds[index], doctor.name);
-      }
-    });
-
-    return map;
-  }, [doctorIds, doctorQueries]);
-
   const historyRows = useMemo(
     () =>
       (notificationHistoryQuery.data ?? []).map((action) => ({
         ...action,
-        doctorName: doctorNameById.get(action.doctor_id) ?? `Doctor ${action.doctor_id}`,
+        doctorName: action.doctor_name || "Unknown doctor",
         localTimestamp: action.timestamp.toLocaleString(),
         reportText: action.report?.trim() || "No reason provided.",
       })),
-    [doctorNameById, notificationHistoryQuery.data],
+    [notificationHistoryQuery.data],
   );
 
   return (
@@ -131,7 +102,7 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
                       </Table.Header>
                       <Table.Body>
                         {historyRows.map((action) => (
-                          <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_id}`}>
+                          <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_name}`}>
                             <Table.Cell>
                               <Text {...fieldValueStyles} whiteSpace="nowrap">{action.localTimestamp}</Text>
                             </Table.Cell>

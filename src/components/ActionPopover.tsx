@@ -14,7 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { actionOptions, type ActionOption, type NotificationData, type PatientData } from "../model/dashboard_types";
 import { toNotificationPresentation } from "../services/NotificationsDataProcessing";
@@ -66,22 +66,6 @@ const ActionPopover = ({
     retry: 1,
   });
 
-  const doctorIds = useMemo(
-    () => Array.from(new Set((notificationHistoryQuery.data ?? []).map((action) => action.doctor_id).filter(Boolean))),
-    [notificationHistoryQuery.data],
-  );
-
-  const doctorQueries = useQueries({
-    queries: doctorIds.map((doctorId) => ({
-      queryKey: ["doctor", doctorId],
-      queryFn: ({ signal }: { signal: AbortSignal }) => notificationsService.getDoctorByDoctorId(doctorId, signal),
-      enabled: Boolean(open && selectedNotification),
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      retry: 1,
-    })),
-  });
-
   useEffect(() => {
     if (open) {
       setSelectedAction(actionOptions[0]);
@@ -94,27 +78,14 @@ const ActionPopover = ({
     ? toNotificationPresentation(selectedNotification, patient?.name ?? "Unknown patient")
     : null;
 
-  const doctorNameById = useMemo(() => {
-    const map = new Map<string, string>();
-
-    doctorQueries.forEach((query, index) => {
-      const doctor = query.data;
-      if (doctor) {
-        map.set(doctorIds[index], doctor.name);
-      }
-    });
-
-    return map;
-  }, [doctorIds, doctorQueries]);
-
   const actionHistoryRows = useMemo(
     () =>
       (notificationHistoryQuery.data ?? []).map((action) => ({
         ...action,
-        doctorName: doctorNameById.get(action.doctor_id) ?? `Doctor ${action.doctor_id}`,
+        doctorName: action.doctor_name || "Unknown doctor",
         localTimestamp: action.timestamp.toLocaleString(),
       })),
-    [doctorNameById, notificationHistoryQuery.data],
+    [notificationHistoryQuery.data],
   );
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -278,7 +249,7 @@ const ActionPopover = ({
                               </Table.Header>
                               <Table.Body>
                                 {actionHistoryRows.map((action) => (
-                                  <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_id}`}>
+                                  <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_name}`}>
                                     <Table.Cell>
                                       <Text {...fieldValueStyles} whiteSpace="nowrap">{action.localTimestamp}</Text>
                                     </Table.Cell>

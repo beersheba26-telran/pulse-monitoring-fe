@@ -2860,7 +2860,7 @@
       "timestamp": "2026-06-10T11:13:40.290Z",
       "type": "JUMP_RATE",
       "severity": "MINOR",
-      "status": "CREATED"
+      "status": "IGNORED"
     }
   ],
   "notification_history": [
@@ -2917,6 +2917,24 @@
         }
       ],
       "id": "_Rs2K8Kp6cE"
+    },
+    {
+      "notificationId": "202",
+      "actions": [
+        {
+          "action": "ACKNOWLEDGED",
+          "timestamp": "2026-06-11T06:56:01.928Z",
+          "report": "needed more values",
+          "doctor_id": "3"
+        },
+        {
+          "action": "IGNORED",
+          "timestamp": "2026-06-11T07:56:13.016Z",
+          "report": "This notification was addressed in another notification",
+          "doctor_id": "3"
+        }
+      ],
+      "id": "gXMYTk6dvaA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

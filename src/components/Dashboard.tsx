@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import ActionPopover from "./ActionPopover";
 import HistoryPopover from "./HistoryPopover";
 import PatientPopover from "./PatientPopover";
+import { useColorModeValue } from "./ui/color-mode";
 import type { ActionOption, NotificationData } from "../model/dashboard_types";
 import { useNotificationsPolling } from "../services/useNotificationsPolling";
 import { notificationsService } from "../services/NotificationsServiceImpl";
@@ -22,6 +23,12 @@ import { toNotificationPresentation } from "../services/NotificationsDataProcess
 type DashboardProps = {
   userId: AuthResponse["userId"];
   role: AuthResponse["role"];
+};
+
+type SeverityColors = {
+  badgeBg: string;
+  badgeText: string;
+  rowBg: string;
 };
 
 const Dashboard = ({ userId, role }: DashboardProps) => {
@@ -51,7 +58,7 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
         action,
         timestamp: new Date(),
         report,
-        doctor_id: userId,
+        doctor_name: `Doctor ${userId}`,
       });
     },
   });
@@ -117,6 +124,30 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
     [data, loadingPatientIds, patientNameById],
   );
 
+  const severityColorsByKey: Record<string, SeverityColors> = {
+    MINOR: {
+      badgeBg: "yellow.300",
+      badgeText: "black",
+      rowBg: useColorModeValue("yellow.50", "yellow.900"),
+    },
+    MAJOR: {
+      badgeBg: "orange.800",
+      badgeText: "white",
+      rowBg: useColorModeValue("orange.100", "orange.900"),
+    },
+    CRITICAL: {
+      badgeBg: "red.500",
+      badgeText: "white",
+      rowBg: useColorModeValue("red.100", "red.900"),
+    },
+  };
+
+  const defaultSeverityColors: SeverityColors = {
+    badgeBg: useColorModeValue("gray.200", "gray.600"),
+    badgeText: useColorModeValue("black", "white"),
+    rowBg: useColorModeValue("gray.50", "gray.800"),
+  };
+
   const handleOpenPatientPopover = (notification: NotificationData) => {
     setSelectedPatientId(notification.patientId);
     setSelectedNotification(notification);
@@ -166,38 +197,26 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
   }
 
   return (
-    <Box maxW="1100px" mx="auto" px={{ base: "4", md: "6" }} py={{ base: "5", md: "8" }}>
-      <Flex justify="space-between" align={{ base: "start", md: "center" }} gap="3" mb="4" direction={{ base: "column", md: "row" }}>
-        <Heading size="lg">Notifications ({role}: {userId})</Heading>
-        <Text color="gray.500" fontSize="sm">
-          {isFetching ? "Refreshing..." : "Up to date"}
-        </Text>
-      </Flex>
+    <Box
+      maxW="1100px"
+      mx="auto"
+      px={{ base: "4", md: "6" }}
+      pt="0"
+      pb={{ base: "4", md: "6" }}
+      h="100%"
+      display="flex"
+      flexDirection="column"
+      overflow="hidden"
+    >
+      <Box w="100%" h="100%" display="flex" flexDirection="column" minH="0">
+        <Flex justify="space-between" align={{ base: "start", md: "center" }} gap="3" mb="1" direction={{ base: "column", md: "row" }}>
+          <Heading size="lg">Notifications ({role}: {userId})</Heading>
+          <Text color="gray.500" fontSize="sm">
+            {isFetching ? "Refreshing..." : "Up to date"}
+          </Text>
+        </Flex>
 
-      <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
-        <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
-          <Table.ColumnGroup>
-            <Table.Column htmlWidth="16%" />
-            <Table.Column htmlWidth="11%" />
-            <Table.Column htmlWidth="14%" />
-            <Table.Column htmlWidth="16%" />
-            <Table.Column htmlWidth="18%" />
-            <Table.Column htmlWidth="25%" />
-          </Table.ColumnGroup>
-
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader>Type</Table.ColumnHeader>
-              <Table.ColumnHeader>Severity</Table.ColumnHeader>
-              <Table.ColumnHeader>Status</Table.ColumnHeader>
-              <Table.ColumnHeader>Patient name</Table.ColumnHeader>
-              <Table.ColumnHeader>Date/time</Table.ColumnHeader>
-              <Table.ColumnHeader>Message</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-        </Table.Root>
-
-        <Box maxH="420px" overflowY="auto" overflowX="hidden">
+        <Box borderWidth="1px" borderRadius="lg" overflow="hidden" flex="1" minH="0" display="flex" flexDirection="column">
           <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
             <Table.ColumnGroup>
               <Table.Column htmlWidth="16%" />
@@ -207,56 +226,83 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
               <Table.Column htmlWidth="18%" />
               <Table.Column htmlWidth="25%" />
             </Table.ColumnGroup>
-          <Table.Body>
-            {notificationRows.map((notificationRow) => {
-              return (
-                <Table.Row
-                  key={notificationRow.id}
-                  bg={notificationRow.severityPresentation.rowBg}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    handleOpenActionPopover(notificationRow.raw);
-                  }}
-                  cursor="context-menu"
-                >
-                  <Table.Cell whiteSpace="nowrap">{notificationRow.type}</Table.Cell>
-                  <Table.Cell>
-                    <Badge bg={notificationRow.severityPresentation.badgeBg} color={notificationRow.severityPresentation.badgeText} px="2" py="1" borderRadius="md">
-                      {notificationRow.severityText}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell
-                    cursor="pointer"
-                    _hover={{ textDecoration: "underline" }}
-                    onClick={() => {
-                      setHistoryNotificationId(notificationRow.id);
-                      setIsHistoryPopoverOpen(true);
-                    }}
-                  >
-                    {notificationRow.statusText}
-                  </Table.Cell>
-                  <Table.Cell
-                    cursor="pointer"
-                    _hover={{ textDecoration: "underline" }}
-                    onClick={() => handleOpenPatientPopover(notificationRow.raw)}
-                  >
-                    {notificationRow.patientName}
-                  </Table.Cell>
-                  <Table.Cell>{notificationRow.formattedTimestamp}</Table.Cell>
-                  <Table.Cell>{notificationRow.message}</Table.Cell>
-                </Table.Row>
-              );
-            })}
 
-            {(!data || data.length === 0) && (
+            <Table.Header>
               <Table.Row>
-                <Table.Cell colSpan={6}>
-                  No notifications found for this user.
-                </Table.Cell>
+                <Table.ColumnHeader>Type</Table.ColumnHeader>
+                <Table.ColumnHeader>Severity</Table.ColumnHeader>
+                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Patient name</Table.ColumnHeader>
+                <Table.ColumnHeader>Date/time</Table.ColumnHeader>
+                <Table.ColumnHeader>Message</Table.ColumnHeader>
               </Table.Row>
-            )}
-          </Table.Body>
+            </Table.Header>
           </Table.Root>
+
+          <Box flex="1" minH="0" overflowY="auto" overflowX="hidden">
+            <Table.Root size="sm" variant="outline" tableLayout="fixed" width="100%">
+              <Table.ColumnGroup>
+                <Table.Column htmlWidth="16%" />
+                <Table.Column htmlWidth="11%" />
+                <Table.Column htmlWidth="14%" />
+                <Table.Column htmlWidth="16%" />
+                <Table.Column htmlWidth="18%" />
+                <Table.Column htmlWidth="25%" />
+              </Table.ColumnGroup>
+            <Table.Body>
+              {notificationRows.map((notificationRow) => {
+                const severityColors =
+                  severityColorsByKey[notificationRow.severityText] ?? defaultSeverityColors;
+
+                return (
+                  <Table.Row
+                    key={notificationRow.id}
+                    bg={severityColors.rowBg}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      handleOpenActionPopover(notificationRow.raw);
+                    }}
+                    cursor="context-menu"
+                  >
+                    <Table.Cell whiteSpace="nowrap">{notificationRow.type}</Table.Cell>
+                    <Table.Cell>
+                      <Badge bg={severityColors.badgeBg} color={severityColors.badgeText} px="2" py="1" borderRadius="md">
+                        {notificationRow.severityText}
+                      </Badge>
+                    </Table.Cell>
+                    <Table.Cell
+                      cursor="pointer"
+                      _hover={{ textDecoration: "underline" }}
+                      onClick={() => {
+                        setHistoryNotificationId(notificationRow.id);
+                        setIsHistoryPopoverOpen(true);
+                      }}
+                    >
+                      {notificationRow.statusText}
+                    </Table.Cell>
+                    <Table.Cell
+                      cursor="pointer"
+                      _hover={{ textDecoration: "underline" }}
+                      onClick={() => handleOpenPatientPopover(notificationRow.raw)}
+                    >
+                      {notificationRow.patientName}
+                    </Table.Cell>
+                    <Table.Cell>{notificationRow.formattedTimestamp}</Table.Cell>
+                    <Table.Cell>{notificationRow.message}</Table.Cell>
+                  </Table.Row>
+                );
+              })}
+
+              {(!data || data.length === 0) && (
+                <Table.Row>
+                  <Table.Cell colSpan={6}>
+                    No notifications found for this user.
+                  </Table.Cell>
+                </Table.Row>
+              )}
+            </Table.Body>
+            </Table.Root>
+          </Box>
         </Box>
       </Box>
 
