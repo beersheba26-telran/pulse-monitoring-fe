@@ -7,27 +7,11 @@ type NotificationDto = Omit<NotificationData, "timestamp"> & {
 	timestamp: string;
 };
 
-type DoctorDto = {
-	id: string;
-	name: string;
-	patient_ids: string[];
-};
-
-type ActionDto = {
-	action: ActionData["action"];
-	report: string;
-	doctor_name?: string;
-	doctor_id?: string;
+type ActionDto = Omit<ActionData, "timestamp"> & {
 	timestamp: string;
 };
 
-type NotificationHistoryDto = {
-	id: string;
-	notificationId: string;
-	actions: ActionDto[];
-};
-
-const API_BASE_URL =  "http://localhost:3001";
+const API_BASE_URL = "http://localhost:3000";
 
 const notificationsApi = axios.create({
 	baseURL: API_BASE_URL,
@@ -41,8 +25,13 @@ class NotificationsServiceImpl implements NotificationsService {
 		}));
 	}
 
-	private sortNotificationsByTimestampDesc(notifications: NotificationData[]): NotificationData[] {
-		return [...notifications].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+	private mapActions(actions: ActionDto[]): ActionData[] {
+		return [...actions]
+			.map((action) => ({
+				...action,
+				timestamp: new Date(action.timestamp),
+			}))
+			.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 	}
 
 	async getNotificationsPatient(patientId: string, signal?: AbortSignal): Promise<NotificationData[]> {
@@ -50,13 +39,11 @@ class NotificationsServiceImpl implements NotificationsService {
 			return [];
 		}
 
-		const response = await notificationsApi.get<NotificationDto[]>("/notifications", { signal });
+		const response = await notificationsApi.get<NotificationDto[]>(`/notifications/patient/${patientId}`, {
+			signal,
+		});
 
-		const filteredNotifications = response.data.filter(
-			(notification) => notification.patientId === patientId,
-		);
-
-		return this.sortNotificationsByTimestampDesc(this.mapNotifications(filteredNotifications));
+		return this.mapNotifications(response.data ?? []);
 	}
 
 	async getNotificationsDoctor(doctorId: string, signal?: AbortSignal): Promise<NotificationData[]> {
@@ -64,32 +51,11 @@ class NotificationsServiceImpl implements NotificationsService {
 			return [];
 		}
 
-		let doctor: DoctorDto;
-		try {
-			const doctorResponse = await notificationsApi.get<DoctorDto>(`/doctors/${doctorId}`, {
-				signal,
-			});
-			doctor = doctorResponse.data;
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 404) {
-				return [];
-			}
+		const response = await notificationsApi.get<NotificationDto[]>(`/notifications/doctor/${doctorId}`, {
+			signal,
+		});
 
-			throw error;
-		}
-
-		const doctorPatientIds = new Set(doctor.patient_ids ?? []);
-		if (doctorPatientIds.size === 0) {
-			return [];
-		}
-
-		const notificationsResponse = await notificationsApi.get<NotificationDto[]>("/notifications", { signal });
-
-		const filteredNotifications = notificationsResponse.data.filter((notification) =>
-			doctorPatientIds.has(notification.patientId),
-		);
-
-		return this.sortNotificationsByTimestampDesc(this.mapNotifications(filteredNotifications));
+		return this.mapNotifications(response.data ?? []);
 	}
 
 	async getNotificationHistoryByNotificationId(notificationId: string, signal?: AbortSignal): Promise<ActionData[]> {
@@ -97,48 +63,20 @@ class NotificationsServiceImpl implements NotificationsService {
 			return [];
 		}
 
-		const historyResponse = await notificationsApi.get<NotificationHistoryDto[]>("/notification_history", { signal });
-		const notificationHistory = historyResponse.data.find((history) => history.notificationId === notificationId);
+		const response = await notificationsApi.get<ActionDto[]>(`/notifications/history/${notificationId}`, {
+			signal,
+		});
 
-		if (!notificationHistory) {
-			return [];
-		}
-
-		const actions = [...(notificationHistory.actions ?? [])];
-		const missingDoctorNameIds = Array.from(
-			new Set(
-				actions
-					.filter((action) => !action.doctor_name && Boolean(action.doctor_id))
-					.map((action) => action.doctor_id as string),
-			),
-		);
-
-		let doctorNameById = new Map<string, string>();
-		if (missingDoctorNameIds.length > 0) {
-			const doctorsResponse = await notificationsApi.get<DoctorDto[]>("/doctors", { signal });
-			doctorNameById = new Map(
-				doctorsResponse.data.map((doctor) => [doctor.id, doctor.name]),
-			);
-		}
-
-		return actions
-			.map((action) => ({
-				action: action.action,
-				report: action.report,
-				doctor_name:
-					action.doctor_name ??
-					(action.doctor_id ? doctorNameById.get(action.doctor_id) : undefined) ??
-					"Unknown doctor",
-				timestamp: new Date(action.timestamp),
-			}))
-			.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+		return this.mapActions(response.data ?? []);
 	}
 
 	async getPatientByPatientId(patientId: string, signal?: AbortSignal): Promise<PatientData | null> {
-		
+		if (!patientId) {
+			return null;
+		}
 
 		try {
-			const response = await notificationsApi.get<PatientData>(`/patients/${patientId}`, {
+			const response = await notificationsApi.get<PatientData>(`/patient/${patientId}`, {
 				signal,
 			});
 
@@ -153,14 +91,16 @@ class NotificationsServiceImpl implements NotificationsService {
 	}
 
 	async getPatientByNotificationId(notificationId: string, signal?: AbortSignal): Promise<PatientData | null> {
-		
+		if (!notificationId) {
+			return null;
+		}
 
 		try {
-			const notificationResponse = await notificationsApi.get<NotificationDto>(`/notifications/${notificationId}`, {
+			const response = await notificationsApi.get<PatientData>(`/patient/notifications/${notificationId}`, {
 				signal,
 			});
 
-			return this.getPatientByPatientId(notificationResponse.data.patientId, signal);
+			return response.data;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 404) {
 				return null;
@@ -175,41 +115,13 @@ class NotificationsServiceImpl implements NotificationsService {
 			throw new Error("notificationId is required");
 		}
 
-		const notificationStatus = action.action;
-		const actionToPersist: ActionDto = {
-			...action,
-			timestamp: action.timestamp.toISOString(),
-		};
-
-		await notificationsApi.patch(
-			`/notifications/${notificationId}`,
+		await notificationsApi.post(
+			`/notifications/history/${notificationId}`,
 			{
-				status: notificationStatus,
+				...action,
+				timestamp: action.timestamp.toISOString(),
 			},
 			signal ? { signal } : undefined,
-		);
-
-		const historyResponse = await notificationsApi.get<NotificationHistoryDto[]>("/notification_history", { signal });
-
-		const existingHistory = historyResponse.data.find((history) => history.notificationId === notificationId);
-		if (!existingHistory) {
-			await notificationsApi.post(
-				"/notification_history",
-				{
-					notificationId,
-					actions: [actionToPersist],
-				},
-				{ signal },
-			);
-			return;
-		}
-
-		await notificationsApi.patch(
-			`/notification_history/${existingHistory.id}`,
-			{
-				actions: [...(existingHistory.actions ?? []), actionToPersist],
-			},
-			{ signal },
 		);
 	}
 }
