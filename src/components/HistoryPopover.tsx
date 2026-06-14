@@ -10,6 +10,7 @@ import {
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { useColorModeValue } from "./ui/color-mode";
 import { notificationsService } from "../services/NotificationsServiceImpl";
 
 type HistoryPopoverProps = {
@@ -30,6 +31,12 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
     enabled: Boolean(open && notificationId),
     retry: 1,
   });
+  const dialogBg = useColorModeValue('white', 'gray.800')
+  const dialogBorder = useColorModeValue('gray.200', 'gray.700')
+  const bodyText = useColorModeValue('gray.800', 'gray.100')
+  const mutedText = useColorModeValue('gray.600', 'gray.300')
+  const valueColor = useColorModeValue('gray.900', 'gray.100')
+  const tableBg = useColorModeValue('white', 'gray.700')
 
   const historyRows = useMemo(
     () =>
@@ -51,40 +58,42 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
       unmountOnExit
     >
       <Portal>
-        <Dialog.Backdrop bg="blackAlpha.600" backdropFilter="blur(2px)" />
+        <Dialog.Backdrop bg="blackAlpha.700" backdropFilter="blur(4px)" />
         <Dialog.Positioner>
           <Dialog.Content
             zIndex={1500}
             boxShadow="2xl"
             borderWidth="1px"
-            borderColor="blackAlpha.200"
+            borderColor={dialogBorder}
+            bg={dialogBg}
+            color={bodyText}
             width="95vw"
             maxW="1100px"
           >
             <Dialog.Body>
-              <Box borderWidth="1px" borderRadius="md" p="3" bg="gray.50" boxShadow="md">
-                <Text fontWeight="bold" color="gray.800" mb="2" textAlign="center">
+              <Box borderWidth="1px" borderRadius="md" p="3" bg={tableBg} boxShadow="md" borderColor={dialogBorder}>
+                <Text fontWeight="bold" color={bodyText} mb="2" textAlign="center">
                   Notification history
                 </Text>
 
                 {!notificationId && (
-                  <Text color="gray.600">No notification selected.</Text>
+                  <Text color={mutedText}>No notification selected.</Text>
                 )}
 
                 {notificationId && notificationHistoryQuery.isLoading && (
-                  <Text color="gray.600">Loading action history...</Text>
+                  <Text color={mutedText}>Loading action history...</Text>
                 )}
 
                 {notificationId && notificationHistoryQuery.isError && (
-                  <Text color="red.500">Failed to load action history.</Text>
+                  <Text color="red.400">Failed to load action history.</Text>
                 )}
 
                 {notificationId && !notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && historyRows.length === 0 && (
-                  <Text color="gray.600">No actions recorded yet.</Text>
+                  <Text color={mutedText}>No actions recorded yet.</Text>
                 )}
 
                 {notificationId && !notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && historyRows.length > 0 && (
-                  <Box borderWidth="1px" borderRadius="md" overflowX="auto" bg="white">
+                  <Box borderWidth="1px" borderRadius="md" overflowX="auto" bg={tableBg} borderColor={dialogBorder}>
                     <Table.Root size="sm" variant="line" tableLayout="fixed" minW="900px">
                       <Table.ColumnGroup>
                         <Table.Column htmlWidth="24%" />
@@ -104,7 +113,7 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
                         {historyRows.map((action) => (
                           <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_name}`}>
                             <Table.Cell>
-                              <Text {...fieldValueStyles} whiteSpace="nowrap">{action.localTimestamp}</Text>
+                              <Text {...fieldValueStyles} color={valueColor} whiteSpace="nowrap">{action.localTimestamp}</Text>
                             </Table.Cell>
                             <Table.Cell>
                               <Badge colorPalette="blue" variant="subtle">
@@ -112,10 +121,10 @@ const HistoryPopover = ({ open, onOpenChange, notificationId }: HistoryPopoverPr
                               </Badge>
                             </Table.Cell>
                             <Table.Cell>
-                              <Text {...fieldValueStyles}>{action.doctorName}</Text>
+                              <Text {...fieldValueStyles} color={valueColor}>{action.doctorName}</Text>
                             </Table.Cell>
                             <Table.Cell>
-                              <Text color="gray.700" fontSize="sm">{action.reportText}</Text>
+                              <Text color={valueColor} fontSize="sm">{action.reportText}</Text>
                             </Table.Cell>
                           </Table.Row>
                         ))}

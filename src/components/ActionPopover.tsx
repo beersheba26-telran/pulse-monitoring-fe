@@ -16,6 +16,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { useColorModeValue } from "./ui/color-mode";
+
 import { actionOptions, type ActionOption, type NotificationData, type PatientData } from "../model/dashboard_types";
 import { toNotificationPresentation } from "../services/NotificationsDataProcessing";
 import { notificationsService } from "../services/NotificationsServiceImpl";
@@ -58,6 +60,15 @@ const ActionPopover = ({
 }: ActionPopoverProps) => {
   const [selectedAction, setSelectedAction] = useState<ActionOption>(actionOptions[0]);
   const [report, setReport] = useState("");
+  const dialogBg = useColorModeValue("white", "gray.800");
+  const dialogBorder = useColorModeValue("gray.200", "gray.700");
+  const bodyText = useColorModeValue("gray.800", "gray.100");
+  const mutedText = useColorModeValue("gray.600", "gray.300");
+  const labelColor = useColorModeValue("gray.600", "gray.300");
+  const valueColor = useColorModeValue("gray.900", "gray.100");
+  const patientCardBg = useColorModeValue("gray.50", "gray.700");
+  const infoCardBg = useColorModeValue("gray.50", "gray.700");
+  const tableBg = useColorModeValue("white", "gray.700");
 
   const notificationHistoryQuery = useQuery({
     queryKey: ["notification-history", selectedNotification?.id],
@@ -113,7 +124,9 @@ const ActionPopover = ({
             zIndex={1500}
             boxShadow="2xl"
             borderWidth="1px"
-            borderColor="blackAlpha.200"
+            borderColor={dialogBorder}
+            bg={dialogBg}
+            color={bodyText}
             width="95vw"
             maxW="1300px"
           >
@@ -122,17 +135,17 @@ const ActionPopover = ({
                 {isLoading && <Text>Loading patient data...</Text>}
 
                 {!isLoading && errorMessage && (
-                  <Text color="red.500">{errorMessage}</Text>
+                  <Text color="red.400">{errorMessage}</Text>
                 )}
 
                 {!isLoading && !errorMessage && !patient && (
-                  <Text color="gray.600">Patient details were not found.</Text>
+                  <Text color={mutedText}>Patient details were not found.</Text>
                 )}
 
                 {!isLoading && !errorMessage && patient && (
-                  <Box borderWidth="1px" borderRadius="lg" p="4" bg="gray.50" boxShadow="lg">
+                  <Box borderWidth="1px" borderRadius="lg" p="4" bg={patientCardBg} boxShadow="lg" borderColor={dialogBorder}>
                     <Flex justify="space-between" align="center" mb="3" gap="2">
-                      <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                      <Text fontSize="lg" fontWeight="bold" color={bodyText}>
                         {patient.name}
                       </Text>
                       <Badge colorPalette="blue">ID: {patient.id}</Badge>
@@ -142,63 +155,63 @@ const ActionPopover = ({
 
                     <Flex direction={{ base: "column", lg: "row" }} gap="3" align="stretch">
                       {selectedNotification && (
-                        <Box borderWidth="1px" borderRadius="md" p="3" bg={selectedNotificationPresentation?.severityPresentation.rowBg} flex="1" minW="0" boxShadow="md">
-                          <Text fontWeight="bold" color="gray.800" mb="2">
+                        <Box borderWidth="1px" borderRadius="md" p="3" bg={infoCardBg} flex="1" minW="0" boxShadow="md" borderColor={dialogBorder}>
+                          <Text fontWeight="bold" color={bodyText} mb="2">
                             Selected notification
                           </Text>
                           <SimpleGrid columns={{ base: 1, sm: 2 }} gap="2">
                             <Box>
-                              <Text {...fieldLabelStyles}>Type</Text>
-                              <Text {...fieldValueStyles}>{selectedNotificationPresentation?.type}</Text>
+                              <Text {...fieldLabelStyles} color={labelColor}>Type</Text>
+                              <Text {...fieldValueStyles} color={valueColor}>{selectedNotificationPresentation?.type}</Text>
                             </Box>
                             <Box>
-                              <Text {...fieldLabelStyles}>Severity</Text>
+                              <Text {...fieldLabelStyles} color={labelColor}>Severity</Text>
                               <Badge bg={selectedNotificationPresentation?.severityPresentation.badgeBg} color={selectedNotificationPresentation?.severityPresentation.badgeText} px="2" py="1" borderRadius="md">
                                 {selectedNotificationPresentation?.severityText}
                               </Badge>
                             </Box>
                             <Box>
-                              <Text {...fieldLabelStyles}>Status</Text>
-                              <Text {...fieldValueStyles}>{selectedNotificationPresentation?.statusText}</Text>
+                              <Text {...fieldLabelStyles} color={labelColor}>Status</Text>
+                              <Text {...fieldValueStyles} color={valueColor}>{selectedNotificationPresentation?.statusText}</Text>
                             </Box>
                             <Box>
-                              <Text {...fieldLabelStyles}>Date/time</Text>
-                              <Text {...fieldValueStyles}>{selectedNotificationPresentation?.formattedTimestamp}</Text>
+                              <Text {...fieldLabelStyles} color={labelColor}>Date/time</Text>
+                              <Text {...fieldValueStyles} color={valueColor}>{selectedNotificationPresentation?.formattedTimestamp}</Text>
                             </Box>
                           </SimpleGrid>
                           <Box mt="2">
-                            <Text {...fieldLabelStyles}>Message</Text>
-                            <Text color="gray.700" fontSize="sm">
+                            <Text {...fieldLabelStyles} color={labelColor}>Message</Text>
+                            <Text color={valueColor} fontSize="sm">
                               {selectedNotificationPresentation?.message}
                             </Text>
                           </Box>
                         </Box>
                       )}
 
-                      <Box borderWidth="1px" borderRadius="md" p="3" bg="white" flex="1" minW="0" boxShadow="md">
-                        <Text fontWeight="bold" color="gray.800" mb="2">
+                      <Box borderWidth="1px" borderRadius="md" p="3" bg={tableBg} flex="1" minW="0" boxShadow="md" borderColor={dialogBorder}>
+                        <Text fontWeight="bold" color={bodyText} mb="2">
                           Patient data
                         </Text>
 
                         <SimpleGrid columns={{ base: 1, sm: 3 }} gap="3">
                           <Box>
-                            <Text {...fieldLabelStyles}>Age</Text>
-                            <Text {...fieldValueStyles}>{patient.age} years</Text>
+                            <Text {...fieldLabelStyles} color={labelColor}>Age</Text>
+                            <Text {...fieldValueStyles} color={valueColor}>{patient.age} years</Text>
                           </Box>
 
                           <Box>
-                            <Text {...fieldLabelStyles}>Weight</Text>
-                            <Text {...fieldValueStyles}>{patient.weight} kg</Text>
+                            <Text {...fieldLabelStyles} color={labelColor}>Weight</Text>
+                            <Text {...fieldValueStyles} color={valueColor}>{patient.weight} kg</Text>
                           </Box>
 
                           <Box>
-                            <Text {...fieldLabelStyles}>Height</Text>
-                            <Text {...fieldValueStyles}>{patient.height} cm</Text>
+                            <Text {...fieldLabelStyles} color={labelColor}>Height</Text>
+                            <Text {...fieldValueStyles} color={valueColor}>{patient.height} cm</Text>
                           </Box>
                         </SimpleGrid>
 
                         <Box mt="3">
-                          <Text {...fieldLabelStyles}>Last heart-rate values</Text>
+                          <Text {...fieldLabelStyles} color={labelColor}>Last heart-rate values</Text>
                           <Flex wrap="wrap" gap="2" mt="1">
                             {heartRateValues.length > 0 ? (
                               heartRateValues.map((value, index) => (
@@ -207,7 +220,7 @@ const ActionPopover = ({
                                 </Badge>
                               ))
                             ) : (
-                              <Text color="gray.600">No heart-rate samples available.</Text>
+                              <Text color={mutedText}>No heart-rate samples available.</Text>
                             )}
                           </Flex>
                         </Box>
@@ -215,25 +228,25 @@ const ActionPopover = ({
                     </Flex>
 
                     <Flex mt="4" gap="3" direction={{ base: "column", lg: "row" }} align="stretch">
-                      <Box borderWidth="1px" borderRadius="md" p="3" bg="gray.50" boxShadow="md" flex="2" minW="0">
-                        <Text fontWeight="bold" color="gray.800" mb="2" textAlign="center">
+                      <Box borderWidth="1px" borderRadius="md" p="3" bg={infoCardBg} boxShadow="md" flex="2" minW="0" borderColor={dialogBorder}>
+                        <Text fontWeight="bold" color={bodyText} mb="2" textAlign="center">
                           Existing actions for this notification
                         </Text>
 
                         {notificationHistoryQuery.isLoading && (
-                          <Text color="gray.600">Loading action history...</Text>
+                          <Text color={mutedText}>Loading action history...</Text>
                         )}
 
                         {notificationHistoryQuery.isError && (
-                          <Text color="red.500">Failed to load action history.</Text>
+                          <Text color="red.400">Failed to load action history.</Text>
                         )}
 
                         {!notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && actionHistoryRows.length === 0 && (
-                          <Text color="gray.600">No actions recorded yet.</Text>
+                          <Text color={mutedText}>No actions recorded yet.</Text>
                         )}
 
                         {!notificationHistoryQuery.isLoading && !notificationHistoryQuery.isError && actionHistoryRows.length > 0 && (
-                          <Box borderWidth="1px" borderRadius="md" overflowX="auto" bg="white">
+                          <Box borderWidth="1px" borderRadius="md" overflowX="auto" bg={tableBg} borderColor={dialogBorder}>
                             <Table.Root size="sm" variant="line" tableLayout="fixed" minW="760px">
                               <Table.ColumnGroup>
                                 <Table.Column htmlWidth="36%" />
@@ -251,13 +264,13 @@ const ActionPopover = ({
                                 {actionHistoryRows.map((action) => (
                                   <Table.Row key={`${action.action}-${action.timestamp.toISOString()}-${action.doctor_name}`}>
                                     <Table.Cell>
-                                      <Text {...fieldValueStyles} whiteSpace="nowrap">{action.localTimestamp}</Text>
+                                      <Text {...fieldValueStyles} color={valueColor} whiteSpace="nowrap">{action.localTimestamp}</Text>
                                     </Table.Cell>
                                     <Table.Cell>
                                       <Badge colorPalette="blue" variant="subtle">{action.action}</Badge>
                                     </Table.Cell>
                                     <Table.Cell>
-                                      <Text {...fieldValueStyles}>{action.doctorName}</Text>
+                                      <Text {...fieldValueStyles} color={valueColor}>{action.doctorName}</Text>
                                     </Table.Cell>
                                   </Table.Row>
                                 ))}
@@ -268,10 +281,10 @@ const ActionPopover = ({
                       </Box>
 
                       {canPerformActions && (
-                        <Box borderWidth="1px" borderRadius="md" p="3" bg="white" boxShadow="md" flex="1" minW="320px" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+                        <Box borderWidth="1px" borderRadius="md" p="3" bg={tableBg} boxShadow="md" flex="1" minW="320px" display="flex" flexDirection="column" justifyContent="center" alignItems="center" borderColor={dialogBorder}>
                           <Flex direction="column" gap="3" align="center" width="100%">
                             <Field.Root required width="100%" maxW="360px">
-                              <Field.Label justifyContent="center" textAlign="center">Select action</Field.Label>
+                              <Field.Label justifyContent="center" textAlign="center" color={labelColor}>Select action</Field.Label>
                               <NativeSelect.Root disabled={isSubmitting}>
                                 <NativeSelect.Field
                                   value={selectedAction}
@@ -288,7 +301,7 @@ const ActionPopover = ({
                             </Field.Root>
 
                             <Field.Root required width="100%" maxW="360px">
-                              <Field.Label justifyContent="center" textAlign="center">Report / reason</Field.Label>
+                              <Field.Label justifyContent="center" textAlign="center" color={labelColor}>Report / reason</Field.Label>
                               <Input
                                 placeholder="Type report or reason"
                                 value={report}
@@ -299,7 +312,7 @@ const ActionPopover = ({
                           </Flex>
 
                           {submitErrorMessage && (
-                            <Text color="red.500" mt="3" textAlign="center">{submitErrorMessage}</Text>
+                            <Text color="red.400" mt="3" textAlign="center">{submitErrorMessage}</Text>
                           )}
                         </Box>
                       )}
