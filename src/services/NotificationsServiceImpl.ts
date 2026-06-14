@@ -11,7 +11,7 @@ type ActionDto = Omit<ActionData, "timestamp"> & {
 	timestamp: string;
 };
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://qrfd5s2xt9.execute-api.us-east-1.amazonaws.com";
 
 const notificationsApi = axios.create({
 	baseURL: API_BASE_URL,
