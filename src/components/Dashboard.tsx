@@ -58,7 +58,7 @@ const Dashboard = ({ userId, role }: DashboardProps) => {
         action,
         timestamp: new Date(),
         report,
-        doctor_name: `Doctor ${userId}`,
+        doctor_name: `${userId}`,
       });
     },
   });
